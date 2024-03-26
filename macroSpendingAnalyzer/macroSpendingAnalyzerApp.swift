@@ -2,7 +2,7 @@
 //  macroSpendingAnalyzerApp.swift
 //  macroSpendingAnalyzer
 //
-//  Created by Marina Marques on 3/26/24.
+//  Created by Rafael Leitao on 3/26/24.
 //
 
 import SwiftUI
