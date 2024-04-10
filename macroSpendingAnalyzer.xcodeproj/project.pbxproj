@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		B64D44D72BB9D0D80075F1E4 /* DBConnect.swift in Sources */ = {isa = PBXBuildFile; fileRef = B64D44D62BB9D0D80075F1E4 /* DBConnect.swift */; };
 		B6718FAB2BC4D2D700F1B69E /* SQLite in Frameworks */ = {isa = PBXBuildFile; productRef = B6718FAA2BC4D2D700F1B69E /* SQLite */; };
+		B68C0B3C2BC5E4A4006FCEA8 /* receipt.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68C0B3B2BC5E4A4006FCEA8 /* receipt.swift */; };
 		FF1918542BB354C500BEFEC2 /* macroSpendingAnalyzerApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF1918532BB354C500BEFEC2 /* macroSpendingAnalyzerApp.swift */; };
 		FF1918562BB354C500BEFEC2 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF1918552BB354C500BEFEC2 /* ContentView.swift */; };
 		FF1918582BB354C600BEFEC2 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = FF1918572BB354C600BEFEC2 /* Assets.xcassets */; };
@@ -39,6 +40,7 @@
 
 /* Begin PBXFileReference section */
 		B64D44D62BB9D0D80075F1E4 /* DBConnect.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DBConnect.swift; sourceTree = "<group>"; };
+		B68C0B3B2BC5E4A4006FCEA8 /* receipt.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = receipt.swift; sourceTree = "<group>"; };
 		FF1918502BB354C500BEFEC2 /* macroSpendingAnalyzer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = macroSpendingAnalyzer.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		FF1918532BB354C500BEFEC2 /* macroSpendingAnalyzerApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = macroSpendingAnalyzerApp.swift; sourceTree = "<group>"; };
 		FF1918552BB354C500BEFEC2 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -109,6 +111,7 @@
 				FF1918572BB354C600BEFEC2 /* Assets.xcassets */,
 				FF1918592BB354C600BEFEC2 /* Preview Content */,
 				B64D44D62BB9D0D80075F1E4 /* DBConnect.swift */,
+				B68C0B3B2BC5E4A4006FCEA8 /* receipt.swift */,
 			);
 			path = macroSpendingAnalyzer;
 			sourceTree = "<group>";
@@ -279,6 +282,7 @@
 				FF1918802BB3865D00BEFEC2 /* HistoryView.swift in Sources */,
 				B64D44D72BB9D0D80075F1E4 /* DBConnect.swift in Sources */,
 				FF1918542BB354C500BEFEC2 /* macroSpendingAnalyzerApp.swift in Sources */,
+				B68C0B3C2BC5E4A4006FCEA8 /* receipt.swift in Sources */,
 				FF19187E2BB37EC800BEFEC2 /* OCRView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
