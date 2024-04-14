@@ -7,13 +7,11 @@
 
 import Foundation
 
-import Foundation
-
-struct Receipt {
-  //  var id: Int64
+struct Receipt : Identifiable {
+    var id: Int64
     var date: Date
     var business: String
-    var catagory: String
+    var category: String
     var product: String
     var total: Double
 }

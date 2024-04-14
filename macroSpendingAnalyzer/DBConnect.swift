@@ -18,7 +18,10 @@ class DBConnect {
     let product = Expression <String>("product")
     let total = Expression <Double>("total")
     
-    let purchases = Table("purchases")
+    private var purchases = Table("purchases")
+    private var income = Table("income")
+    
+    static let sharedinstence = DBConnect()
     // Create new database or establish connection using app documents directory
     
     init() {
@@ -28,7 +31,8 @@ class DBConnect {
             ).first!
             
             self.db = try Connection("\(path)/db.sqlite3")
-            
+            createPurchaseTable()
+            insertPurchase(business: "trader Joes", category: "food", product: "rice", total: 5.6, date: Date.now)
             print("Connection established")
         } catch {
             print(error)
@@ -53,14 +57,21 @@ class DBConnect {
                 p.column(product)
                 p.column(total)
                 p.column(date)
+                print("purchase table created")
             })
         }catch {
             print(error)
         }
     }
     
+//    func createIncomeTable() {
+//        guard let db = db else {return}
+//        
+//        
+//    }
+    
     // Function to insert a purchase record
-    func insertPurchase(_ business: String, category: String, product: String, total: Double, date: Date) {
+    func insertPurchase(business: String, category: String, product: String, total: Double, date: Date) {
         guard let db = db else {return}
         let insert = purchases.insert(
             self.business <- business,
@@ -78,6 +89,36 @@ class DBConnect {
         }
     }
 
+    func getPurchase() -> [Receipt] {
+    var recipts: [Receipt] = []
+        purchases = purchases.order(id.desc)
+        guard let db = db else { return [] }
+        do {
+            for row in try db.prepare(purchases){
+                
+                    // Process apurchase
+                    let purchase = Receipt(
+                        id: try row.get(id),
+                        date: try row.get(date),
+                        business: try row.get(business),
+                        category: try row.get(category),
+                        product: try row.get(product),
+                        total: try row.get(total)
+                        
+                    )
+                    
+                    
+                    recipts.append(purchase)
+                }
+                print(recipts)
+                return recipts
+            
+        } catch {
+            print("Error fetching purchase: \(error)")
+        }
+        return recipts
+    }
+    
     func removePurchase(purchaseID: Int64) {
         guard let db = db else {return}
         do {
@@ -91,5 +132,7 @@ class DBConnect {
             print("Error removing purchase: \(error)")
         }
     }
+    
+    
     
 }
