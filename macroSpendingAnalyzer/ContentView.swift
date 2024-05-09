@@ -25,7 +25,7 @@ struct ContentView: View {
             Button(action: {
                 showOCRView = true
             }) {
-                Text("New")
+                Text("Add a new receipt")
                     .padding()
                     .background(Color.blue)
                     .foregroundColor(.white)
@@ -60,7 +60,7 @@ struct ContentView: View {
                 buttonsOpacity = 1.0
             }
         }
-        .background(Color("DarkGreen")) // Set the background color to dark green
+        .background(Color("green")) // Set the background color to dark green
         .edgesIgnoringSafeArea(.all) // Extend the background to fill the entire screen
     }
 }
