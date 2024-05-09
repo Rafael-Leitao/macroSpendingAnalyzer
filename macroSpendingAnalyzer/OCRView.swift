@@ -17,6 +17,11 @@ struct OCRView: View {
     @State private var showingScanningView = false
     @State private var receiptDetails = ReceiptDetails()
     @State private var showingDatePicker = false
+    @State private var formattedDate = DateFormatter.localizedString(from: Date(), dateStyle: .medium, timeStyle: .none) // Initialize with current date
+    @State private var showAlert = false
+    @State private var alertMessage = ""
+
+
 
     var body: some View {
             NavigationView {
@@ -39,22 +44,22 @@ struct OCRView: View {
                             .textFieldStyle(RoundedBorderTextFieldStyle())
                             .padding()
                         
-                        Text("Date:")
-                            .font(.headline)
-                            .padding(.top)
-                        
-                        // Button to show DatePicker
-                        Button(action: {
-                            showingDatePicker.toggle()
-                        }) {
-                            Text(receiptDetails.date, style: .date)
-                                .foregroundColor(.blue)
+                        TextField("Date", text: $formattedDate, onEditingChanged: { isEditing in
+                            if isEditing { showingDatePicker = true }
+                        })
+                        .textFieldStyle(RoundedBorderTextFieldStyle())
+                        .padding()
+                        .onTapGesture {
+                            showingDatePicker = true
                         }
-                        
+
                         if showingDatePicker {
-                            DatePicker("--->", selection: $receiptDetails.date, displayedComponents: .date)
+                            DatePicker(">", selection: $receiptDetails.date, displayedComponents: .date)
                                 .datePickerStyle(WheelDatePickerStyle())
-                                .frame(maxWidth: .infinity, alignment: .leading) // Align to the left
+                                .onChange(of: receiptDetails.date) { newDate in
+                                    formattedDate = DateFormatter.localizedString(from: newDate, dateStyle: .medium, timeStyle: .none)
+                                }
+                                .frame(maxWidth: .infinity, alignment: .leading)
                                 .padding()
                         }
 
@@ -76,14 +81,22 @@ struct OCRView: View {
                         }
                         
                         Button("Add") {
-                            addPurchaseToDatabase()
-                            presentationMode.wrappedValue.dismiss()
+                            if validateInputs() {
+                                addPurchaseToDatabase()
+                                presentationMode.wrappedValue.dismiss()
+                            } else {
+                                showAlert = true
+                            }
+                        }
+                        .alert(isPresented: $showAlert) {
+                            Alert(title: Text("Ops"), message: Text(alertMessage), dismissButton: .default(Text("OK")))
                         }
                         .padding([.top, .bottom])
                         .frame(width: 300)
                         .background(Color.blue)
                         .foregroundColor(Color.white)
                         .cornerRadius(10)
+
                     }
                     .navigationBarTitle("Type in or Scan a receipt")
                     .navigationBarItems(leading: Button("Back") {
@@ -111,6 +124,24 @@ struct OCRView: View {
             }
 
         }
+    
+        private func validateInputs() -> Bool {
+            if receiptDetails.businessName.isEmpty {
+                alertMessage = "Please enter a business name."
+                return false
+            } else if receiptDetails.category.isEmpty {
+                alertMessage = "Please enter a category."
+                return false
+            } else if receiptDetails.total.isEmpty {
+                alertMessage = "Please enter a total amount."
+                return false
+            } else if !receiptDetails.isDateSet {
+                alertMessage = "Please select a date."
+                return false
+            }
+            return true
+        }
+
 
     
     

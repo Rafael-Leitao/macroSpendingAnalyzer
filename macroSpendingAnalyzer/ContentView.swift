@@ -41,7 +41,7 @@ struct ContentView: View {
             Button(action: {
                 showHistoryView = true
             }) {
-                Text("History")
+                Text("Your History")
                     .multilineTextAlignment(.center)
                     .padding()
                     .background(Color.green)
