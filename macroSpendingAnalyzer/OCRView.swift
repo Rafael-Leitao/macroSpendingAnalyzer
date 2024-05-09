@@ -4,8 +4,10 @@ import VisionKit
 
 struct ReceiptDetails {
     var businessName: String = ""
-    var date: String = ""
+    var date: Date = Date()
     var total: String = ""
+    var category: String = ""
+    var isDateSet: Bool = false
 }
 
 // This view is responsible for initializing the scanning process.
@@ -14,13 +16,13 @@ struct OCRView: View {
     @State private var recognizedText = ""
     @State private var showingScanningView = false
     @State private var receiptDetails = ReceiptDetails()
+    @State private var showingDatePicker = false
 
     var body: some View {
             NavigationView {
                 VStack(alignment: .center) {
                     ScrollView {
-                        Text(recognizedText).padding()
-
+                        
                         Text("Business:")
                             .font(.headline)
                             .padding(.top)
@@ -29,13 +31,34 @@ struct OCRView: View {
                             .textFieldStyle(RoundedBorderTextFieldStyle())
                             .padding()
                         
+                        Text("Category:")
+                            .font(.headline)
+                            .padding(.top)
+                        
+                        TextField("Enter category", text: $receiptDetails.category)
+                            .textFieldStyle(RoundedBorderTextFieldStyle())
+                            .padding()
+                        
                         Text("Date:")
                             .font(.headline)
                             .padding(.top)
                         
-                        TextField("MM-DD-YYYY", text: $receiptDetails.date)
-                            .textFieldStyle(RoundedBorderTextFieldStyle())
-                            .padding()
+                        // Button to show DatePicker
+                        Button(action: {
+                            showingDatePicker.toggle()
+                        }) {
+                            Text(receiptDetails.date, style: .date)
+                                .foregroundColor(.blue)
+                        }
+                        
+                        if showingDatePicker {
+                            DatePicker("--->", selection: $receiptDetails.date, displayedComponents: .date)
+                                .datePickerStyle(WheelDatePickerStyle())
+                                .frame(maxWidth: .infinity, alignment: .leading) // Align to the left
+                                .padding()
+                        }
+
+                        
 
                         Text("Total:")
                             .font(.headline)
@@ -146,12 +169,19 @@ struct ScanningView: UIViewControllerRepresentable {
 
                 for line in lines {
                     print("Examining line: \(line)")  // Debugging: Check each line
-
-                    // Attempt to extract the date if it hasn't been found yet
-                    if receiptDetails.date.wrappedValue.isEmpty, let date = extractDate(line) {
+                    
+                    if line.lowercased().contains("store") {
+                        receiptDetails.category.wrappedValue = "Food"
+                        print("Category set to Food due to 'store' keyword.")
+                    }
+                    
+                    // Use the wrappedValue to access and modify the date
+                    if !receiptDetails.isDateSet.wrappedValue, let date = extractDate(line) {
                         receiptDetails.date.wrappedValue = date
+                        receiptDetails.isDateSet.wrappedValue = true  // Mark the date as manually set
                         print("Date found and extracted: \(date)")  // Debugging: Date extracted
                     }
+
 
                     // Check for keywords related to total and attempt to extract the amount
                     if !foundAmount && (line.lowercased().contains("total purchase") || line.lowercased().contains("payment amount")) {
@@ -186,7 +216,7 @@ struct ScanningView: UIViewControllerRepresentable {
                 return nil
             }
 
-            private func extractDate(_ line: String) -> String? {
+            private func extractDate(_ line: String) -> Date? {
                 let pattern = "\\b(\\d{1,2}[-/\\.]\\d{1,2}[-/\\.]\\d{2,4})\\b"  // Regex to match common date formats
                 do {
                     let regex = try NSRegularExpression(pattern: pattern, options: [])
@@ -195,7 +225,10 @@ struct ScanningView: UIViewControllerRepresentable {
                         if let dateRange = Range(match.range, in: line) {
                             let foundDate = String(line[dateRange])
                             print("Date found: \(foundDate)")  // Debugging: Date found
-                            return foundDate
+                            // Convert the found date string to Date
+                            let dateFormatter = DateFormatter()
+                            dateFormatter.dateFormat = "MM-dd-yy"  // Adjust the date format as per your actual needs
+                            return dateFormatter.date(from: foundDate)
                         }
                     } else {
                         print("No date found in line: \(line)")  // Debugging: No date found
@@ -205,6 +238,7 @@ struct ScanningView: UIViewControllerRepresentable {
                 }
                 return nil
             }
+
 
 
 
