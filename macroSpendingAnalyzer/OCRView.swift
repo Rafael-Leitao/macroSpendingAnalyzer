@@ -59,13 +59,13 @@ struct OCRView: View {
                         }
 
                         
-
                         Text("Total:")
                             .font(.headline)
                             .padding(.top)
                         
                         TextField("Enter total", text: $receiptDetails.total)
                             .textFieldStyle(RoundedBorderTextFieldStyle())
+                            .keyboardType(.decimalPad)
                             .padding()
 
                         Button("Scan Document") {
@@ -76,19 +76,14 @@ struct OCRView: View {
                         }
                         
                         Button("Add") {
-                            // Placeholder action: print the details to the console
-                            print("Adding details: Business - \(receiptDetails.businessName), Date - \(receiptDetails.date), Total - \(receiptDetails.total)")
-                            
+                            addPurchaseToDatabase()
+                            presentationMode.wrappedValue.dismiss()
                         }
                         .padding([.top, .bottom])
                         .frame(width: 300)
                         .background(Color.blue)
                         .foregroundColor(Color.white)
                         .cornerRadius(10)
-                        
-                        
-
-    
                     }
                     .navigationBarTitle("Type in or Scan a receipt")
                     .navigationBarItems(leading: Button("Back") {
@@ -98,6 +93,27 @@ struct OCRView: View {
                 .padding([.top, .leading, .bottom])
             }
         }
+        private func addPurchaseToDatabase() {
+            guard let total = Double(receiptDetails.total) else {
+                print("Error: Total amount is not a valid number")
+                return
+            }
+
+            // Use the shared instance to insert the purchase
+            DBConnect.sharedinstence.insertPurchase(business: receiptDetails.businessName,
+                                                    category: receiptDetails.category,
+                                                    total: total,
+                                                    date: receiptDetails.date)
+            print("Purchase details added to database")
+            DBConnect.sharedinstence.printAllPurchases()
+            DispatchQueue.main.async {
+                presentationMode.wrappedValue.dismiss()
+            }
+
+        }
+
+    
+    
 }
 
 // We use this to view controller to capture images of receipts.
@@ -168,30 +184,27 @@ struct ScanningView: UIViewControllerRepresentable {
                 var foundAmount = false  // Flag to control when to look for the amount
 
                 for line in lines {
-                    print("Examining line: \(line)")  // Debugging: Check each line
                     
                     if line.lowercased().contains("store") {
                         receiptDetails.category.wrappedValue = "Food"
-                        print("Category set to Food due to 'store' keyword.")
                     }
                     
                     // Use the wrappedValue to access and modify the date
                     if !receiptDetails.isDateSet.wrappedValue, let date = extractDate(line) {
                         receiptDetails.date.wrappedValue = date
                         receiptDetails.isDateSet.wrappedValue = true  // Mark the date as manually set
-                        print("Date found and extracted: \(date)")  // Debugging: Date extracted
                     }
 
 
                     // Check for keywords related to total and attempt to extract the amount
                     if !foundAmount && (line.lowercased().contains("total purchase") || line.lowercased().contains("payment amount")) {
                         foundAmount = true  // Indicate that amount might be on this or next lines
-                        print("Keyword 'total purchase' or 'payment amount' found.")  // Debugging: Keyword found
+                        
                     }
                     
                     if foundAmount && receiptDetails.total.wrappedValue.isEmpty, let amount = extractAmount(line) {
                         receiptDetails.total.wrappedValue = amount
-                        print("Amount found and extracted: \(amount)")  // Debugging: Amount found
+                        
                         foundAmount = false // Reset the flag in case more totals are listed but keep scanning for dates
                     }
                 }
@@ -206,7 +219,7 @@ struct ScanningView: UIViewControllerRepresentable {
                     if let match = regex.firstMatch(in: line, options: [], range: range) {
                         if let amountRange = Range(match.range(at: 1), in: line) {
                             let foundAmount = String(line[amountRange])
-                            print("Amount extracted: \(foundAmount)")  // Debugging: Amount extracted
+                            
                             return foundAmount
                         }
                     }
@@ -224,15 +237,14 @@ struct ScanningView: UIViewControllerRepresentable {
                     if let match = regex.firstMatch(in: line, options: [], range: range) {
                         if let dateRange = Range(match.range, in: line) {
                             let foundDate = String(line[dateRange])
-                            print("Date found: \(foundDate)")  // Debugging: Date found
+                            
                             // Convert the found date string to Date
                             let dateFormatter = DateFormatter()
                             dateFormatter.dateFormat = "MM-dd-yy"  // Adjust the date format as per your actual needs
                             return dateFormatter.date(from: foundDate)
                         }
-                    } else {
-                        print("No date found in line: \(line)")  // Debugging: No date found
                     }
+                    
                 } catch {
                     print("Regex error: \(error)")  // Debugging: Regex error
                 }

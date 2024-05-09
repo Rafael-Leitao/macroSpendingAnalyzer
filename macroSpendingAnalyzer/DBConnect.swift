@@ -15,7 +15,6 @@ class DBConnect {
     let date = Expression<Date>("date")
     let business = Expression<String>("business")
     let category =  Expression <String>("category")
-    let product = Expression <String>("product")
     let total = Expression <Double>("total")
     
     private var purchases = Table("purchases")
@@ -26,43 +25,55 @@ class DBConnect {
     
     init() {
         do {
-            let path = NSSearchPathForDirectoriesInDomains(
-                .documentDirectory, .userDomainMask, true
-            ).first!
-            
+            let path = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true).first!
             self.db = try Connection("\(path)/db.sqlite3")
-            createPurchaseTable()
-            insertPurchase(business: "trader Joes", category: "food", product: "rice", total: 5.6, date: Date.now)
+            
+            createPurchaseTable() // Create or recreate the table at startup
+            
             print("Connection established")
         } catch {
-            print(error)
+            print("Database connection error: \(error)")
         }
     }
     
-    func createPurchaseTable() {
-        
-        //optional type 'Connection?' must be unwrapped to refer to member 'run' of wrapped base type 'Connection
-        // TODO check generics
-        guard let db = db else {return}
-        
-        // use optional generics for expressions that can evaluate to null
+    func printAllPurchases() {
+        guard let db = db else { return }
 
-        
-        // TODO check that the table hasn't already been created
         do {
-            try db.run(purchases.create {p in
-                p.column(id, primaryKey: .autoincrement)
-                p.column(business)
-                p.column(category)
-                p.column(product)
-                p.column(total)
-                p.column(date)
-                print("purchase table created")
-            })
-        }catch {
-            print(error)
+            let allRows = try db.prepare(purchases)
+            for row in allRows {
+                print("Purchase ID: \(row[id]), Business: \(row[business]), Category: \(row[category]), Total: \(row[total]), Date: \(row[date])")
+            }
+        } catch {
+            print("Failed to fetch purchases: \(error)")
         }
     }
+
+    
+    func createPurchaseTable() {
+        guard let db = db else { return }
+
+        do {
+            // Check if the table already exists
+            if !(try db.scalar(purchases.exists)) {
+                // Create the table if it does not exist
+                try db.run(purchases.create { t in
+                    t.column(id, primaryKey: .autoincrement)
+                    t.column(business)
+                    t.column(category)
+                    t.column(total)
+                    t.column(date)
+                })
+                print("Purchase table created")
+            } else {
+                print("Purchase table already exists")
+            }
+        } catch {
+            print("Error checking or creating table: \(error)")
+        }
+    }
+
+
     
 //    func createIncomeTable() {
 //        guard let db = db else {return}
@@ -71,12 +82,11 @@ class DBConnect {
 //    }
     
     // Function to insert a purchase record
-    func insertPurchase(business: String, category: String, product: String, total: Double, date: Date) {
+    func insertPurchase(business: String, category: String, total: Double, date: Date) {
         guard let db = db else {return}
         let insert = purchases.insert(
             self.business <- business,
             self.category <- category,
-            self.product <- product,
             self.total <- total,
             self.date <- date
                     )
@@ -102,7 +112,6 @@ class DBConnect {
                         date: try row.get(date),
                         business: try row.get(business),
                         category: try row.get(category),
-                        product: try row.get(product),
                         total: try row.get(total)
                         
                     )

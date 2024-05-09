@@ -12,6 +12,5 @@ struct Receipt : Identifiable {
     var date: Date
     var business: String
     var category: String
-    var product: String
     var total: Double
 }
