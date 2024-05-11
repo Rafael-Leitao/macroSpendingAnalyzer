@@ -44,6 +44,11 @@ struct OCRView: View {
                             .textFieldStyle(RoundedBorderTextFieldStyle())
                             .padding()
                         
+                        Text("Date:")
+                            .font(.headline)
+                            .padding(.top)
+                        
+                        
                         TextField("Date", text: $formattedDate, onEditingChanged: { isEditing in
                             if isEditing { showingDatePicker = true }
                         })
@@ -134,9 +139,6 @@ struct OCRView: View {
                 return false
             } else if receiptDetails.total.isEmpty {
                 alertMessage = "Please enter a total amount."
-                return false
-            } else if !receiptDetails.isDateSet {
-                alertMessage = "Please select a date."
                 return false
             }
             return true
