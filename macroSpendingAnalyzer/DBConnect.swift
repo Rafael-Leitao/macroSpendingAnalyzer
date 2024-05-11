@@ -11,28 +11,44 @@ import SQLite
 
 class DBConnect {
     private var db: Connection?
-    let id  = Expression<Int64>("id")
-    let date = Expression<Date>("date")
-    let business = Expression<String>("business")
-    let category =  Expression <String>("category")
-    let total = Expression <Double>("total")
     
+    // Purchase
+    private var id  = Expression<Int64>("id")
+    private var date = Expression<Date>("date")
+    private var business = Expression<String>("business")
+    private var category =  Expression <String>("category")
+    private var product = Expression <String>("product")
+    private var total = Expression <Double>("total")
+    
+    //Income
+    private var startDate = Expression<Date>("startDate")
+    private var updatedDate = Expression<Date>("updatedDate")
+    private var endDate = Expression<Date>("endDate")
+    
+    // Monthly Expences
+    
+    // Tables
     private var purchases = Table("purchases")
-    private var income = Table("income")
+    private var incomeTable = Table("income")
     
-    static let sharedinstence = DBConnect()
+    static let sharedInstance = DBConnect()
+    
     // Create new database or establish connection using app documents directory
-    
     init() {
         do {
-            let path = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true).first!
+            let path = NSSearchPathForDirectoriesInDomains(
+                .documentDirectory, .userDomainMask, true
+            ).first!
+            
             self.db = try Connection("\(path)/db.sqlite3")
-            
-            createPurchaseTable() // Create or recreate the table at startup
-            
+            createPurchaseTable()
+            createIncomeTable()
+            insertPurchase(business: "trader Joes", category: "food", total: 5.6, date: Date.now)
+            insertIncome(startDate: Date.distantPast, updatedDate: Date.now, endDate: Date.distantFuture, business: "Walgreens", total: 500.00)
+           // insertPurchase(business: "trader Joes", category: "food", product: "rice", total: 5.6, date: Date.now)
             print("Connection established")
         } catch {
-            print("Database connection error: \(error)")
+            print(error)
         }
     }
     
@@ -50,36 +66,61 @@ class DBConnect {
     }
 
     
+    
     func createPurchaseTable() {
-        guard let db = db else { return }
-
-        do {
-            // Check if the table already exists
-            if !(try db.scalar(purchases.exists)) {
-                // Create the table if it does not exist
-                try db.run(purchases.create { t in
-                    t.column(id, primaryKey: .autoincrement)
-                    t.column(business)
-                    t.column(category)
-                    t.column(total)
-                    t.column(date)
-                })
-                print("Purchase table created")
-            } else {
-                print("Purchase table already exists")
-            }
-        } catch {
-            print("Error checking or creating table: \(error)")
+        guard let db = db else {return}
+        do{
+            // TODO check that the table hasn't already been created
+            try db.run(purchases.create(ifNotExists : true) {p in
+                p.column(id, primaryKey: .autoincrement)
+                p.column(business)
+                p.column(category)
+                p.column(total)
+                p.column(date)
+            })
+        }catch {
+            print(error)
         }
+        print("purchase table created")
     }
 
 
+    func createIncomeTable() {
+        guard let db = db else {return}
+        
+        do {
+            try db.run(incomeTable.create(ifNotExists : true) {i in
+                i.column(id, primaryKey: .autoincrement)
+                i.column(startDate)
+                i.column(updatedDate)
+                i.column(endDate)
+                i.column(business)
+                i.column(total)
+            })
+        }catch {
+            print(error)
+        }
+        print("income table created")
+    }
     
-//    func createIncomeTable() {
-//        guard let db = db else {return}
-//        
-//        
-//    }
+    func insertIncome(startDate: Date, updatedDate: Date, endDate: Date, business: String, total: Double) {
+        guard let db = db else {return}
+        let insert = incomeTable.insert(
+            self.startDate <- startDate,
+            self.updatedDate <- updatedDate,
+            self.endDate <- endDate,
+            self.business <- business,
+            self.total <- total)
+        do {
+            let insertRow = try db.run(insert)
+            print("income inserted successfully to row \(insertRow).")
+        } catch {
+            print("Error inserting purchase: \(error)")
+        }
+    }
+
+    
+
     
     // Function to insert a purchase record
     func insertPurchase(business: String, category: String, total: Double, date: Date) {
@@ -99,15 +140,15 @@ class DBConnect {
         }
     }
 
-    func getPurchase() -> [Receipt] {
-    var recipts: [Receipt] = []
+    func getPurchase() -> [receipt] {
+    var recipts: [receipt] = []
         purchases = purchases.order(id.desc)
         guard let db = db else { return [] }
         do {
             for row in try db.prepare(purchases){
                 
                     // Process apurchase
-                    let purchase = Receipt(
+                    let purchase = receipt(
                         id: try row.get(id),
                         date: try row.get(date),
                         business: try row.get(business),
@@ -125,7 +166,50 @@ class DBConnect {
         } catch {
             print("Error fetching purchase: \(error)")
         }
+        // need to fix this
         return recipts
+    }
+    
+    func getIncome() -> [income] {
+        var allIncome: [income] = []
+        incomeTable = incomeTable.order(id.desc)
+        guard let db = db else { return [] }
+        do {
+            for row in try db.prepare(incomeTable){
+                
+                    // Process apurchase
+                    let income = income(
+                        id: try row.get(id),
+                        startDate: try row.get(startDate),
+                        updatedDate: try row.get(updatedDate),
+                        endDate: try row.get(endDate),
+                        business: try row.get(business),
+                        total: try row.get(total)
+                    )
+                    allIncome.append(income)
+                }
+                print(allIncome)
+                return allIncome
+            
+        } catch {
+            print("Error fetching all inocme: \(error)")
+        }
+        // need to fix this
+        return allIncome
+    }
+    
+    func removeIncome(incomeID: Int64){
+        guard let db = db else {return}
+        do {
+            let incomeToRemove = incomeTable.filter(id == incomeID)
+            if try db.run(incomeToRemove.delete()) > 0 {
+                print("Income with ID \(incomeID) removed successfully.")
+            } else {
+                print("Income with ID \(incomeID) not found.")
+            }
+        } catch {
+            print("Error removing purchase: \(error)")
+        }
     }
     
     func removePurchase(purchaseID: Int64) {
@@ -141,7 +225,5 @@ class DBConnect {
             print("Error removing purchase: \(error)")
         }
     }
-    
-    
     
 }

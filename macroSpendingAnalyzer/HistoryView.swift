@@ -8,51 +8,44 @@
 import SwiftUI
 
 struct HistoryView: View {
-    @Environment(\.presentationMode) var presentationMode // Access the presentation mode
+    @Environment(\.presentationMode) var modepresentationMode // Access the presentation mode
 
     // for testing
+    @State var receiptId: Int64 = 0
+    @State var reciptSelected = false
+    @State var transactions: [receipt] = []
+
+
     
-  // @State var purchase = DBConnect.sharedinstence.getPurchase()
-    @State var scannedTexts: [Receipt] = []
-
-//    struct Receipt : Identifiable {
-//        var date: Date
-//        var business: String
-//        var category: String
-//        var product: String
-//        var total: Double
-//        let id = UUID()
-//    }
-
     var body: some View {
 
-//        Table(scannedTexts) {
-//            TableColumn("Business", value: \.business)
-//            TableColumn("Category", value: \.category)
-//            TableColumn("Product", value: \.product)
-//          //  TableColumn("Total", value: \.total)
-//          //  TableColumn("Date" , value: \.date)
-//                
-//               }
-//               .navigationTitle("Purchases")
-//               .onAppear(perform: {
-//                   self.scannedTexts = DBConnect.sharedinstence.getPurchase()
-//               })
-        List(self.scannedTexts) { (Receipt) in
-            HStack {
-                Text("\(Receipt.date, formatter: dateFormatter)")
-                Spacer()
-                Text(Receipt.business)
-                Spacer()
-                Text(Receipt.category)
+            List(self.transactions) { (receipt) in
+                HStack {
+                    VStack{
+                        
+                        Text(receipt.business)
+                       
+                        Text("\(receipt.date, formatter: dateFormatter)")
+                    }
+                    Spacer()
+                    Text(receipt.total,format: .currency(code: Locale.current.currency?.identifier ?? "USD"))
+//                    Spacer()
+//                    Button(action: {
+//                        self.receiptId = Receipt.id
+//                        self.reciptSelected = true
+//                    }, label: {
+//                        Text("Edit")
+//                            .foregroundColor(Color.blue)
+//                        })
+//                        .buttonStyle(PlainButtonStyle())
+                }
             }
-            
-        }
-                       .navigationTitle("Purchases")
-                       .onAppear(perform: {
-                           self.scannedTexts = DBConnect.sharedinstence.getPurchase()
-                       })
-           }
+            .navigationTitle("Purchases")
+            .onAppear(perform: {
+                self.transactions = DBConnect.sharedInstance.getPurchase()
+            })
+        
+    }
     private let dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.dateStyle = .short

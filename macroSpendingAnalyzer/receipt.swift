@@ -7,10 +7,11 @@
 
 import Foundation
 
-struct Receipt : Identifiable {
+struct receipt : Identifiable {
     var id: Int64
     var date: Date
     var business: String
     var category: String
     var total: Double
 }
+

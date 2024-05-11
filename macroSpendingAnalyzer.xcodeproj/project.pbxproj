@@ -7,8 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		B60AFDAB2BEED89B00449470 /* IncomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B60AFDAA2BEED89B00449470 /* IncomeView.swift */; };
 		B64D44D72BB9D0D80075F1E4 /* DBConnect.swift in Sources */ = {isa = PBXBuildFile; fileRef = B64D44D62BB9D0D80075F1E4 /* DBConnect.swift */; };
 		B68C0B3C2BC5E4A4006FCEA8 /* receipt.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68C0B3B2BC5E4A4006FCEA8 /* receipt.swift */; };
+		B6C858482BEE8E54007DF802 /* income.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6C858472BEE8E54007DF802 /* income.swift */; };
 		FF1918542BB354C500BEFEC2 /* macroSpendingAnalyzerApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF1918532BB354C500BEFEC2 /* macroSpendingAnalyzerApp.swift */; };
 		FF1918562BB354C500BEFEC2 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF1918552BB354C500BEFEC2 /* ContentView.swift */; };
 		FF1918582BB354C600BEFEC2 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = FF1918572BB354C600BEFEC2 /* Assets.xcassets */; };
@@ -40,8 +42,10 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		B60AFDAA2BEED89B00449470 /* IncomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IncomeView.swift; sourceTree = "<group>"; };
 		B64D44D62BB9D0D80075F1E4 /* DBConnect.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DBConnect.swift; sourceTree = "<group>"; };
 		B68C0B3B2BC5E4A4006FCEA8 /* receipt.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = receipt.swift; sourceTree = "<group>"; };
+		B6C858472BEE8E54007DF802 /* income.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = income.swift; sourceTree = "<group>"; };
 		FF1918502BB354C500BEFEC2 /* macroSpendingAnalyzer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = macroSpendingAnalyzer.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		FF1918532BB354C500BEFEC2 /* macroSpendingAnalyzerApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = macroSpendingAnalyzerApp.swift; sourceTree = "<group>"; };
 		FF1918552BB354C500BEFEC2 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -113,6 +117,8 @@
 				FF1918572BB354C600BEFEC2 /* Assets.xcassets */,
 				FF1918592BB354C600BEFEC2 /* Preview Content */,
 				B64D44D62BB9D0D80075F1E4 /* DBConnect.swift */,
+				B6C858472BEE8E54007DF802 /* income.swift */,
+				B60AFDAA2BEED89B00449470 /* IncomeView.swift */,
 				B68C0B3B2BC5E4A4006FCEA8 /* receipt.swift */,
 			);
 			path = macroSpendingAnalyzer;
@@ -283,6 +289,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B6C858482BEE8E54007DF802 /* income.swift in Sources */,
+				B60AFDAB2BEED89B00449470 /* IncomeView.swift in Sources */,
 				FF1918562BB354C500BEFEC2 /* ContentView.swift in Sources */,
 				FF1918802BB3865D00BEFEC2 /* HistoryView.swift in Sources */,
 				B64D44D72BB9D0D80075F1E4 /* DBConnect.swift in Sources */,
@@ -457,7 +465,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"macroSpendingAnalyzer/Preview Content\"";
-				DEVELOPMENT_TEAM = 4PDZM4G7G4;
+				DEVELOPMENT_TEAM = 2HJJB9WW8S;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSCameraUsageDescription = "\"This app uses the camera to capture photos\"";
@@ -466,13 +474,13 @@
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.2;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = myProject.macroSpendingAnalyzer;
+				PRODUCT_BUNDLE_IDENTIFIER = macroSpendingAnalyzer;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -489,7 +497,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"macroSpendingAnalyzer/Preview Content\"";
-				DEVELOPMENT_TEAM = 4PDZM4G7G4;
+				DEVELOPMENT_TEAM = 2HJJB9WW8S;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSCameraUsageDescription = "\"This app uses the camera to capture photos\"";
@@ -498,13 +506,13 @@
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.2;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = myProject.macroSpendingAnalyzer;
+				PRODUCT_BUNDLE_IDENTIFIER = macroSpendingAnalyzer;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;

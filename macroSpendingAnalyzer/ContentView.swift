@@ -13,6 +13,7 @@ struct ContentView: View {
     @State private var buttonsOpacity: Double = 0.0
     @State private var showOCRView = false
     @State private var showHistoryView = false
+    @State private var showIncomeView = false
 
     var body: some View {
         VStack(spacing: 20) {
@@ -36,7 +37,19 @@ struct ContentView: View {
                 OCRView()
             }
             
-        
+            Button(action: {
+                showIncomeView = true
+            }) {
+                Text("edit income")
+                    .padding()
+                    .background(Color.blue)
+                    .foregroundColor(.white)
+                    .cornerRadius(10)
+            }
+            .opacity(buttonsOpacity)
+            .sheet(isPresented: $showIncomeView) {
+                IncomeView()
+            }
 
             Button(action: {
                 showHistoryView = true
@@ -60,7 +73,7 @@ struct ContentView: View {
                 buttonsOpacity = 1.0
             }
         }
-        .background(Color("green")) // Set the background color to dark green
+        .background(Color.green) // Set the background color to dark green
         .edgesIgnoringSafeArea(.all) // Extend the background to fill the entire screen
     }
 }

@@ -113,12 +113,12 @@ struct OCRView: View {
             }
 
             // Use the shared instance to insert the purchase
-            DBConnect.sharedinstence.insertPurchase(business: receiptDetails.businessName,
+            DBConnect.sharedInstance.insertPurchase(business: receiptDetails.businessName,
                                                     category: receiptDetails.category,
                                                     total: total,
                                                     date: receiptDetails.date)
             print("Purchase details added to database")
-            DBConnect.sharedinstence.printAllPurchases()
+            DBConnect.sharedInstance.printAllPurchases()
             DispatchQueue.main.async {
                 presentationMode.wrappedValue.dismiss()
             }
@@ -281,12 +281,6 @@ struct ScanningView: UIViewControllerRepresentable {
                 }
                 return nil
             }
-
-
-
-
-
-
     }
 }
 
