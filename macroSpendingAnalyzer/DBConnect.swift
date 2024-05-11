@@ -12,7 +12,7 @@ import SQLite
 class DBConnect {
     private var db: Connection?
     
-    // Purchase
+    
     private var id  = Expression<Int64>("id")
     private var date = Expression<Date>("date")
     private var business = Expression<String>("business")
@@ -20,16 +20,17 @@ class DBConnect {
     private var product = Expression <String>("product")
     private var total = Expression <Double>("total")
     
-    //Income
     private var startDate = Expression<Date>("startDate")
     private var updatedDate = Expression<Date>("updatedDate")
     private var endDate = Expression<Date>("endDate")
+    private var accountBalance = Expression <Double>("balance")
     
     // Monthly Expences
     
     // Tables
     private var purchases = Table("purchases")
     private var incomeTable = Table("income")
+    private var balanceTable = Table("balance")
     
     static let sharedInstance = DBConnect()
     
@@ -43,15 +44,33 @@ class DBConnect {
             self.db = try Connection("\(path)/db.sqlite3")
             createPurchaseTable()
             createIncomeTable()
+            createBalanceTable()
+            editBalance(startDate: Date.distantPast, updatedDate: Date.now, accountBalance: 20000)
             insertPurchase(business: "trader Joes", category: "food", total: 5.6, date: Date.now)
             insertIncome(startDate: Date.distantPast, updatedDate: Date.now, endDate: Date.distantFuture, business: "Walgreens", total: 500.00)
+            checkBalance()
+            
            // insertPurchase(business: "trader Joes", category: "food", product: "rice", total: 5.6, date: Date.now)
             print("Connection established")
         } catch {
             print(error)
         }
     }
-    
+    func checkBalance(){
+        guard let db = db else { return }
+        let tableName = "balance"
+
+        do {
+            let count = try db.scalar("SELECT COUNT(*) FROM \(tableName)") as! Int64
+            
+            if count == 0 {
+                print("\(tableName) is empty.")
+            } else {
+                print("\(tableName) is not empty. It has \(count) rows.")            }
+        } catch {
+            print("Error: \(error)")
+        }
+    }
     func printAllPurchases() {
         guard let db = db else { return }
 
@@ -84,7 +103,22 @@ class DBConnect {
         print("purchase table created")
     }
 
-
+    func createBalanceTable() {
+        guard let db = db else {return}
+        do{
+            // TODO check that the table hasn't already been created
+            try db.run(balanceTable.create(ifNotExists : true) {b in
+                b.column(id,primaryKey: true)
+                b.column(startDate)
+                b.column(updatedDate)
+                b.column(accountBalance)
+            })
+        }catch {
+            print(error)
+        }
+        print("balance table created")
+    }
+    
     func createIncomeTable() {
         guard let db = db else {return}
         
@@ -115,11 +149,24 @@ class DBConnect {
             let insertRow = try db.run(insert)
             print("income inserted successfully to row \(insertRow).")
         } catch {
-            print("Error inserting purchase: \(error)")
+            print("Error inserting income: \(error)")
         }
     }
 
-    
+    func editBalance(startDate: Date, updatedDate: Date, accountBalance: Double){
+        guard let db = db else {return}
+        let newBalance = balanceTable.insert(
+            self.id <- 1,
+            self.startDate <- startDate,
+            self.updatedDate <- updatedDate,
+            self.accountBalance <- accountBalance)
+        do {
+            let insertRow = try db.run(newBalance)
+            print("Balance edited successfully to row \(insertRow).")
+        } catch {
+            print("Error editing balance: \(error)")
+        }
+    }
 
     
     // Function to insert a purchase record
