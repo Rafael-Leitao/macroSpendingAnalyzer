@@ -36,7 +36,7 @@ class DBConnect {
     
     // number of tables in database
     // Add one for sqlite_sequence table
-    let numberOfTables: Int = 4
+    let numberOfTables: Int = 6
     static let sharedInstance = DBConnect()
     
     // Create new database or establish connection using app documents directory
@@ -57,9 +57,9 @@ class DBConnect {
         guard let db = db else { return }
         do{
         let tableCount = try db.scalar("SELECT count(*) FROM sqlite_master WHERE type = 'table'") as! Int64
-            print("The current number of tables, tables = \(tableCount)")
+            print("The current number of tables should be 6, tables = \(tableCount)")
             if tableCount == numberOfTables {
-                print("tables have been created.")
+                print("tables have already been created.")
             } else {
                 createPurchaseTable()
                 createIncomeTable()
@@ -439,6 +439,20 @@ class DBConnect {
             }
         } catch {
             print("Error removing purchase: \(error)")
+        }
+    }
+    
+    func removeDeposit(depositID: Int64){
+        guard let db = db else {return}
+        do {
+            let depositToDelete = purchases.filter(id == depositID)
+            if try db.run(depositToDelete.delete()) > 0 {
+                print("Deposit with ID \(depositID) removed successfully.")
+            } else {
+                print("Deposit with ID \(depositID) not found.")
+            }
+        } catch {
+            print("Error removing deposit: \(error)")
         }
     }
     
