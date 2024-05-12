@@ -29,9 +29,10 @@ class DBConnect {
     
     // Tables
     private var purchases = Table("purchases")
-    private var incomeTable = Table("income")
+    private var depositsTable = Table("deposits")
+    private var monthlyIncomeTable = Table("income")
     private var balanceTable = Table("balance")
-    private var monthlyExpencesTable = Table("monthlyExpences")
+    private var monthlyExpensesTable = Table("Expenses")
     
     // number of tables in database
     // Add one for sqlite_sequence table
@@ -63,84 +64,59 @@ class DBConnect {
                 createPurchaseTable()
                 createIncomeTable()
                 createBalanceTable()
+                createDepositsTable()
+                createExpensesTable()
+                
+                
                 insertTestingValues()
             }
         } catch {
             print("Error: \(error)")
-        }
-        //printTable()
-    }
-    
-    func printTable(){
-        guard let db = db else { return }
-        do {
-            // 1. Connect to the database
-
-            // 2. Define the query to select table names from sqlite_master
-            let query = "SELECT name FROM sqlite_master WHERE type = 'table'"
-
-            // 3. Prepare the query
-            for table in try db.prepare(query) {
-                // 4. Extract the name of each table and print it
-                if let tableName = table[0] as? String {
-                    print(tableName)
-                }
-            }
-        } catch {
-            // 5. Handle any errors
-            print("An error occurred: \(error)")
         }
     }
     
     func insertTestingValues() {
         guard let db = db else { return }
         do{
-            let pCount = try db.scalar("SELECT COUNT(*) FROM purchases") as! Int64
-            let iCount = try db.scalar("SELECT COUNT(*) FROM income") as! Int64
-            let bCount = try db.scalar("SELECT COUNT(*) FROM balance") as! Int64
+            let purchaseCount = try db.scalar("SELECT COUNT(*) FROM purchases") as! Int64
+            let incomeCount = try db.scalar("SELECT COUNT(*) FROM income") as! Int64
+            let balanceCount = try db.scalar("SELECT COUNT(*) FROM balance") as! Int64
+            let expensesCount = try db.scalar("SELECT COUNT(*) FROM Expenses") as! Int64
+            let depositsCount = try db.scalar("SELECT COUNT(*) FROM deposits") as! Int64
            // let meCount = try db.scalar("SELECT COUNT(*) FROM monthlyExpences") as! Int64
             
-            if pCount == 0 {
+            if purchaseCount == 0 {
                 insertPurchase(business: "trader Joes", category: "food", total: 5.6, date: Date.now)
-                print("Added testing purchases.")
+                print("Added testing data purchases.")
             }
             
-            if iCount == 0 {
-                insertIncome(startDate: Date.distantPast, updatedDate: Date.now, endDate: Date.distantFuture, business: "Walgreens", total: 500.00)
-                print(" Added testing income.")
+            if incomeCount == 0 {
+                insertIncome(startDate: Date.distantPast, updatedDate: Date.now, business: "Walgreens", total: 500.00)
+                insertIncome(startDate: Date.distantPast, updatedDate: Date.now, business: "Walgreens", total: 500.00)
+                print(" Added testing data income.")
             }
             
-            if bCount == 0 {
+            if balanceCount == 0 {
                 insertBalance(startDate: Date.distantPast, updatedDate: Date.distantPast, accountBalance: 10000)
-                print(" Added testing balance.")
+                print(" Added testing data balance.")
             }
-//            
-//            if meCount == 0 {
-//                
-//                print(" Added testing monthlyExpences")
-//            }
+            
+            if expensesCount == 0 {
+                insertExpense(startDate: Date.distantPast, updatedDate: Date.now, business: "att", category: "cable", total: 400.00)
+                print(" Added testing data monthlyExpences")
+            }
+            
+            if depositsCount == 0 {
+                insertDeposit(depositDate: Date.distantPast, business: "google", total: 4000.00)
+                print(" Added testing data monthlyExpences")
+            }
+            
         } catch {
             print("Error: \(error)")
         }
         
     }
     
-//    func checkBalance(){
-//        guard let db = db else { return }
-//        let tableName = "balance"
-//
-//        do {
-//            let count = try db.scalar("SELECT COUNT(*) FROM \(tableName)") as! Int64
-//            
-//            if count == 0 {
-//                print("\(tableName) is empty.")
-//            } else {
-//                print("\(tableName) is not empty. It has \(count) rows.") }
-//        } catch {
-//            print("Error: \(error)")
-//        }
-//    }
-//    
     func printAllPurchases() {
         guard let db = db else { return }
 
@@ -154,12 +130,27 @@ class DBConnect {
         }
     }
 
-    
+    func createExpensesTable() {
+        guard let db = db else {return}
+        do{
+            try db.run(monthlyExpensesTable.create(ifNotExists : true) {p in
+                p.column(id, primaryKey: .autoincrement)
+                p.column(startDate)
+                p.column(updatedDate)
+                p.column(business)
+                p.column(category)
+                p.column(total)
+            })
+        }catch {
+            print(error)
+        }
+        print("Monthy Expences table created")
+        
+    }
     
     func createPurchaseTable() {
         guard let db = db else {return}
         do{
-            // TODO check that the table hasn't already been created
             try db.run(purchases.create(ifNotExists : true) {p in
                 p.column(id, primaryKey: .autoincrement)
                 p.column(business)
@@ -176,7 +167,6 @@ class DBConnect {
     func createBalanceTable() {
         guard let db = db else {return}
         do{
-            // TODO check that the table hasn't already been created
             try db.run(balanceTable.create(ifNotExists : true) {b in
                 b.column(id,primaryKey: true)
                 b.column(startDate)
@@ -193,11 +183,10 @@ class DBConnect {
         guard let db = db else {return}
         
         do {
-            try db.run(incomeTable.create(ifNotExists : true) {i in
+            try db.run(monthlyIncomeTable.create(ifNotExists : true) {i in
                 i.column(id, primaryKey: .autoincrement)
                 i.column(startDate)
                 i.column(updatedDate)
-                i.column(endDate)
                 i.column(business)
                 i.column(total)
             })
@@ -207,12 +196,28 @@ class DBConnect {
         print("income table created")
     }
     
-    func insertIncome(startDate: Date, updatedDate: Date, endDate: Date, business: String, total: Double) {
+    func createDepositsTable() {
         guard let db = db else {return}
-        let insert = incomeTable.insert(
+        
+        do {
+            try db.run(depositsTable.create(ifNotExists : true) {i in
+                i.column(id, primaryKey: .autoincrement)
+                i.column(date)
+                i.column(business)
+                i.column(total)
+            })
+        }catch {
+            print(error)
+        }
+        print("deposits table created")
+    }
+    
+    
+    func insertIncome(startDate: Date, updatedDate: Date, business: String, total: Double) {
+        guard let db = db else {return}
+        let insert = monthlyIncomeTable.insert(
             self.startDate <- startDate,
             self.updatedDate <- updatedDate,
-            self.endDate <- endDate,
             self.business <- business,
             self.total <- total)
         do {
@@ -240,6 +245,37 @@ class DBConnect {
         }
     }
     
+    func insertDeposit(depositDate: Date, business: String, total: Double) {
+        guard let db = db else {return}
+        
+        let insert = depositsTable.insert(
+            self.date <- depositDate,
+            self.business <- business,
+            self.total <- total)
+        do {
+            let insertRow = try db.run(insert)
+            print("Deposit inserted successfully to row \(insertRow).")
+        } catch {
+            print("Error inserting deposit: \(error)")
+        }
+    }
+    
+    func insertExpense(startDate: Date, updatedDate: Date, business: String, category: String, total: Double) {
+        guard let db = db else {return}
+        let insert = monthlyExpensesTable.insert(
+            self.startDate <- startDate,
+            self.updatedDate <- updatedDate,
+            self.business <- business,
+            self.category <- category,
+            self.total <- total)
+        do {
+            let insertRow = try db.run(insert)
+            print("Expense inserted successfully to row \(insertRow).")
+        } catch {
+            print("Error inserting expense: \(error)")
+        }
+        
+    }
     // need this for update let sum = try db.scalar(users.select(balance.sum))
     func changeBalance(startDate: Date, updatedDate: Date, accountBalance: Double){
         guard let db = db else {return}
@@ -338,17 +374,16 @@ class DBConnect {
     
     func getIncome() -> [income] {
         var allIncome: [income] = []
-        incomeTable = incomeTable.order(id.desc)
+        monthlyIncomeTable = monthlyIncomeTable.order(id.desc)
         guard let db = db else { return [] }
         do {
-            for row in try db.prepare(incomeTable){
+            for row in try db.prepare(monthlyIncomeTable){
                 
                     // Process apurchase
                     let income = income(
                         id: try row.get(id),
                         startDate: try row.get(startDate),
                         updatedDate: try row.get(updatedDate),
-                        endDate: try row.get(endDate),
                         business: try row.get(business),
                         total: try row.get(total)
                     )
@@ -367,7 +402,7 @@ class DBConnect {
     func removeIncome(incomeID: Int64){
         guard let db = db else {return}
         do {
-            let incomeToRemove = incomeTable.filter(id == incomeID)
+            let incomeToRemove = monthlyIncomeTable.filter(id == incomeID)
             if try db.run(incomeToRemove.delete()) > 0 {
                 print("Income with ID \(incomeID) removed successfully.")
             } else {
@@ -375,6 +410,21 @@ class DBConnect {
             }
         } catch {
             print("Error removing purchase: \(error)")
+        }
+    }
+    
+    func removeExpense(expenseID: Int64) {
+        guard let db = db else {return}
+        do {
+            let expense = monthlyExpensesTable.filter(id == expenseID)
+            
+            if try db.run(expense.delete()) > 0 {
+                print("Monthly expense with ID \(expenseID) removed successfully.")
+            } else {
+                print("Monthly expense with ID \(expenseID) not found.")
+            }
+        } catch {
+            print("Error removing monthly expense: \(error)")
         }
     }
     

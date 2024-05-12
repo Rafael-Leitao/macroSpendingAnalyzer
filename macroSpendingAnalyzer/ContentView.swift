@@ -14,6 +14,8 @@ struct ContentView: View {
     @State private var showOCRView = false
     @State private var showHistoryView = false
     @State private var showIncomeView = false
+    private var db = DBConnect()
+    
 
     var body: some View {
         VStack(spacing: 20) {

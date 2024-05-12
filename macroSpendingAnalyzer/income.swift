@@ -11,7 +11,6 @@ struct income : Identifiable {
     var id: Int64
     var startDate: Date
     var updatedDate: Date
-    var endDate: Date
     var business: String
     var total: Double
 }

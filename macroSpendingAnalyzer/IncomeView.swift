@@ -42,7 +42,6 @@ struct AddIncomeView: View {
     @State private var business = ""
     @State private var total = ""
     @State private var startDate = Date()
-    @State private var endDate = Date()
     
     var body: some View {
         NavigationView {
@@ -52,12 +51,11 @@ struct AddIncomeView: View {
                     TextField("Total", text: $total)
                         .keyboardType(.numberPad)
                     DatePicker("Start Date", selection: $startDate, displayedComponents: .date)
-                    DatePicker("End Date", selection: $endDate, displayedComponents: .date)
                 }
                 
                 Button("Save") {
                     if let total = Double(total) {
-                        DBConnect.sharedInstance.insertIncome(startDate: startDate, updatedDate: startDate, endDate: endDate, business: business, total: total)
+                        DBConnect.sharedInstance.insertIncome(startDate: startDate, updatedDate: startDate, business: business, total: total)
                     }
 
                 }
