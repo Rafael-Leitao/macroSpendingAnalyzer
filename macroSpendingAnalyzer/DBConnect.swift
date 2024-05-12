@@ -31,7 +31,11 @@ class DBConnect {
     private var purchases = Table("purchases")
     private var incomeTable = Table("income")
     private var balanceTable = Table("balance")
+    private var monthlyExpencesTable = Table("monthlyExpences")
     
+    // number of tables in database
+    // Add one for sqlite_sequence table
+    let numberOfTables: Int = 4
     static let sharedInstance = DBConnect()
     
     // Create new database or establish connection using app documents directory
@@ -40,37 +44,103 @@ class DBConnect {
             let path = NSSearchPathForDirectoriesInDomains(
                 .documentDirectory, .userDomainMask, true
             ).first!
-            
             self.db = try Connection("\(path)/db.sqlite3")
-            createPurchaseTable()
-            createIncomeTable()
-            createBalanceTable()
-            editBalance(startDate: Date.distantPast, updatedDate: Date.now, accountBalance: 20000)
-            insertPurchase(business: "trader Joes", category: "food", total: 5.6, date: Date.now)
-            insertIncome(startDate: Date.distantPast, updatedDate: Date.now, endDate: Date.distantFuture, business: "Walgreens", total: 500.00)
-            checkBalance()
-            
-           // insertPurchase(business: "trader Joes", category: "food", product: "rice", total: 5.6, date: Date.now)
+            createTables()
             print("Connection established")
         } catch {
             print(error)
         }
     }
-    func checkBalance(){
+    
+    func createTables() {
         guard let db = db else { return }
-        let tableName = "balance"
-
-        do {
-            let count = try db.scalar("SELECT COUNT(*) FROM \(tableName)") as! Int64
-            
-            if count == 0 {
-                print("\(tableName) is empty.")
+        do{
+        let tableCount = try db.scalar("SELECT count(*) FROM sqlite_master WHERE type = 'table'") as! Int64
+            print("The current number of tables, tables = \(tableCount)")
+            if tableCount == numberOfTables {
+                print("tables have been created.")
             } else {
-                print("\(tableName) is not empty. It has \(count) rows.")            }
+                createPurchaseTable()
+                createIncomeTable()
+                createBalanceTable()
+                insertTestingValues()
+            }
         } catch {
             print("Error: \(error)")
         }
+        //printTable()
     }
+    
+    func printTable(){
+        guard let db = db else { return }
+        do {
+            // 1. Connect to the database
+
+            // 2. Define the query to select table names from sqlite_master
+            let query = "SELECT name FROM sqlite_master WHERE type = 'table'"
+
+            // 3. Prepare the query
+            for table in try db.prepare(query) {
+                // 4. Extract the name of each table and print it
+                if let tableName = table[0] as? String {
+                    print(tableName)
+                }
+            }
+        } catch {
+            // 5. Handle any errors
+            print("An error occurred: \(error)")
+        }
+    }
+    
+    func insertTestingValues() {
+        guard let db = db else { return }
+        do{
+            let pCount = try db.scalar("SELECT COUNT(*) FROM purchases") as! Int64
+            let iCount = try db.scalar("SELECT COUNT(*) FROM income") as! Int64
+            let bCount = try db.scalar("SELECT COUNT(*) FROM balance") as! Int64
+           // let meCount = try db.scalar("SELECT COUNT(*) FROM monthlyExpences") as! Int64
+            
+            if pCount == 0 {
+                insertPurchase(business: "trader Joes", category: "food", total: 5.6, date: Date.now)
+                print("Added testing purchases.")
+            }
+            
+            if iCount == 0 {
+                insertIncome(startDate: Date.distantPast, updatedDate: Date.now, endDate: Date.distantFuture, business: "Walgreens", total: 500.00)
+                print(" Added testing income.")
+            }
+            
+            if bCount == 0 {
+                insertBalance(startDate: Date.distantPast, updatedDate: Date.distantPast, accountBalance: 10000)
+                print(" Added testing balance.")
+            }
+//            
+//            if meCount == 0 {
+//                
+//                print(" Added testing monthlyExpences")
+//            }
+        } catch {
+            print("Error: \(error)")
+        }
+        
+    }
+    
+//    func checkBalance(){
+//        guard let db = db else { return }
+//        let tableName = "balance"
+//
+//        do {
+//            let count = try db.scalar("SELECT COUNT(*) FROM \(tableName)") as! Int64
+//            
+//            if count == 0 {
+//                print("\(tableName) is empty.")
+//            } else {
+//                print("\(tableName) is not empty. It has \(count) rows.") }
+//        } catch {
+//            print("Error: \(error)")
+//        }
+//    }
+//    
     func printAllPurchases() {
         guard let db = db else { return }
 
@@ -153,21 +223,72 @@ class DBConnect {
         }
     }
 
-    func editBalance(startDate: Date, updatedDate: Date, accountBalance: Double){
+    func insertBalance(startDate: Date, updatedDate: Date, accountBalance: Double){
         guard let db = db else {return}
+
         let newBalance = balanceTable.insert(
             self.id <- 1,
             self.startDate <- startDate,
             self.updatedDate <- updatedDate,
             self.accountBalance <- accountBalance)
         do {
+           // let count = try db.scalar("SELECT COUNT(*) FROM balance") as! Int64
             let insertRow = try db.run(newBalance)
             print("Balance edited successfully to row \(insertRow).")
         } catch {
             print("Error editing balance: \(error)")
         }
     }
+    
+    // need this for update let sum = try db.scalar(users.select(balance.sum))
+    func changeBalance(startDate: Date, updatedDate: Date, accountBalance: Double){
+        guard let db = db else {return}
+        do {
+            let acctBalance = balanceTable.filter(id == 1)
+            
+            try db.run(acctBalance.update(
+                self.startDate <- startDate,
+                self.updatedDate <- updatedDate,
+                self.accountBalance <- accountBalance
+            ))
+            print("Balance was changed correctly")
+        } catch {
+            print("Error editing balance: \(error)")
+        }
+    }
+    
+    func updateBalance(){
+        guard let db = db else {return}
+        do {
+            if let balance = try db.pluck(balanceTable) {
+                let currentAccountBalance = balance[accountBalance]
+                let balanceStartDate = balance[startDate]
+                let currentDate = balance[updatedDate]
+                let purchasesTotal = try db.scalar(purchases.filter(date >= balanceStartDate && date <= currentDate).select(total.sum)) ?? 0.0
+                let newBalance = currentAccountBalance - purchasesTotal
 
+                try db.run(balanceTable.update(accountBalance <- newBalance, updatedDate <- currentDate))
+
+                print("Balance updated successfully. New balance: \(newBalance)")
+            } else {
+                print("No balance found. Initialize the balanceTable.")
+            }
+        } catch {
+            print("Error updating balance: \(error)")
+        }
+    }
+    
+    func applyMonthlyIncome() {
+        
+    }
+    
+    func applyPurchases() {
+        
+    }
+    
+    func applymonthlySExpences() {
+        
+    }
     
     // Function to insert a purchase record
     func insertPurchase(business: String, category: String, total: Double, date: Date) {
@@ -203,8 +324,6 @@ class DBConnect {
                         total: try row.get(total)
                         
                     )
-                    
-                    
                     recipts.append(purchase)
                 }
                 print(recipts)
