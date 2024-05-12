@@ -20,7 +20,7 @@ struct IncomeView: View {
                     }
                 }
             }
-            .navigationTitle("Incomes")
+            .navigationTitle("Monthly Incomes")
             .navigationBarItems(trailing: Button(action: {
                 self.showingAddIncome.toggle()
             }) {

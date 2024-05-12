@@ -10,6 +10,6 @@ import Foundation
 struct balance : Identifiable {
     var id: Int64
     var startDate: Date
-    var UpdateDate: Date
+    var updateDate: Date
     var accountBalance: Double
 }

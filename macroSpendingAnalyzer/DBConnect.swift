@@ -333,9 +333,7 @@ class DBConnect {
             self.business <- business,
             self.category <- category,
             self.total <- total,
-            self.date <- date
-                    )
-        
+            self.date <- date)
         do {
             let insertRow = try db.run(insert)
             print("Purchase inserted successfully to row \(insertRow).")
@@ -367,9 +365,56 @@ class DBConnect {
             
         } catch {
             print("Error fetching purchase: \(error)")
+            return recipts
         }
-        // need to fix this
-        return recipts
+    }
+    
+    func getExpense() ->  [expense]{
+        var allExpenses: [expense] = []
+        monthlyExpensesTable = monthlyExpensesTable.order(id.desc)
+        guard let db = db else { return [] }
+        do {
+            for row in try db.prepare( monthlyExpensesTable){
+                
+                    let ExpenseItem = expense(
+                        id: try row.get(id),
+                        startDate: try row.get(startDate),
+                        updatedDate: try row.get(updatedDate),
+                        business: try row.get(business),
+                        category: try row.get(category),
+                        total: try row.get(total)
+                    )
+                    allExpenses.append(ExpenseItem)
+                }
+                print(allExpenses)
+                return allExpenses
+            
+        } catch {
+            print("Error fetching all monthly expences: \(error)")
+            return allExpenses
+        }
+    }
+    
+    func getDeposit() -> [deposit]{
+        var allDeposits: [deposit] = []
+        depositsTable = depositsTable.order(id.desc)
+        guard let db = db else { return [] }
+        do {
+            for row in try db.prepare(depositsTable){
+                    let depositItem = deposit(
+                        id: try row.get(id),
+                        date: try row.get(date),
+                        business: try row.get(business),
+                        total: try row.get(total)
+                    )
+                    allDeposits.append(depositItem)
+                }
+                print(allDeposits)
+                return allDeposits
+        } catch {
+            print("Error fetching all deposits: \(error)")
+            return allDeposits
+        }
     }
     
     func getIncome() -> [income] {
@@ -379,7 +424,6 @@ class DBConnect {
         do {
             for row in try db.prepare(monthlyIncomeTable){
                 
-                    // Process apurchase
                     let income = income(
                         id: try row.get(id),
                         startDate: try row.get(startDate),
@@ -393,10 +437,31 @@ class DBConnect {
                 return allIncome
             
         } catch {
-            print("Error fetching all inocme: \(error)")
+            print("Error fetching all income: \(error)")
+            return allIncome
         }
-        // need to fix this
-        return allIncome
+    }
+    
+    func getBalance() -> balance? {
+        
+        guard let db = db else {return nil}
+        do {
+            if let balanceItem = try db.pluck(balanceTable) {
+                let balanceData = balance(
+                    id: balanceItem[id],
+                    startDate: balanceItem[startDate],
+                    updateDate: balanceItem[updatedDate],
+                    accountBalance: balanceItem[accountBalance]
+                )
+                return balanceData
+            } else {
+                print("Unable to find the balace.")
+                return nil
+            }
+        } catch {
+            print("Error fetching balance: \(error)")
+            return nil
+        }
     }
     
     func removeIncome(incomeID: Int64){
