@@ -30,9 +30,9 @@
             filePath = "macroSpendingAnalyzer/DBConnect.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "219"
-            endingLineNumber = "219"
-            landmarkName = "insertIncome(startDate:updatedDate:business:total:)"
+            startingLineNumber = "221"
+            endingLineNumber = "221"
+            landmarkName = "insertIncome(startDate:business:total:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -46,9 +46,9 @@
             filePath = "macroSpendingAnalyzer/DBConnect.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "220"
-            endingLineNumber = "220"
-            landmarkName = "insertIncome(startDate:updatedDate:business:total:)"
+            startingLineNumber = "222"
+            endingLineNumber = "222"
+            landmarkName = "insertIncome(startDate:business:total:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>

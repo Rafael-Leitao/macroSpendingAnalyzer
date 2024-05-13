@@ -19,13 +19,11 @@ class DBConnect {
     private var category =  Expression <String>("category")
     private var product = Expression <String>("product")
     private var total = Expression <Double>("total")
-    
     private var startDate = Expression<Date>("startDate")
     private var updatedDate = Expression<Date>("updatedDate")
     private var endDate = Expression<Date>("endDate")
     private var accountBalance = Expression <Double>("balance")
     
-    // Monthly Expences
     
     // Tables
     private var purchases = Table("purchases")
@@ -34,12 +32,10 @@ class DBConnect {
     private var balanceTable = Table("balance")
     private var monthlyExpensesTable = Table("Expenses")
     
-    // number of tables in database
-    // Add one for sqlite_sequence table
+    // number of tables in database including one for sqlite_sequence table
     let numberOfTables: Int = 6
     static let sharedInstance = DBConnect()
     
-    // Create new database or establish connection using app documents directory
     init() {
         do {
             let path = NSSearchPathForDirectoriesInDomains(
@@ -56,7 +52,7 @@ class DBConnect {
     func createTables() {
         guard let db = db else { return }
         do{
-        let tableCount = try db.scalar("SELECT count(*) FROM sqlite_master WHERE type = 'table'") as! Int64
+            let tableCount = try db.scalar("SELECT count(*) FROM sqlite_master WHERE type = 'table'") as! Int64
             print("The current number of tables should be 6, tables = \(tableCount)")
             if tableCount == numberOfTables {
                 print("tables have already been created.")
@@ -69,6 +65,7 @@ class DBConnect {
                 
                 
                 insertTestingValues()
+     //           applymonthlySExpences()
             }
         } catch {
             print("Error: \(error)")
@@ -83,7 +80,12 @@ class DBConnect {
             let balanceCount = try db.scalar("SELECT COUNT(*) FROM balance") as! Int64
             let expensesCount = try db.scalar("SELECT COUNT(*) FROM Expenses") as! Int64
             let depositsCount = try db.scalar("SELECT COUNT(*) FROM deposits") as! Int64
-           // let meCount = try db.scalar("SELECT COUNT(*) FROM monthlyExpences") as! Int64
+            // let meCount = try db.scalar("SELECT COUNT(*) FROM monthlyExpences") as! Int64
+            let dateFormatter = DateFormatter()
+             dateFormatter.dateFormat = "yyyy-MM-dd"
+             
+             // Define the date range
+             let startDateA = dateFormatter.date(from: "2023-01-01")!
             
             if purchaseCount == 0 {
                 insertPurchase(business: "trader Joes", category: "food", total: 5.6, date: Date.now)
@@ -91,18 +93,18 @@ class DBConnect {
             }
             
             if incomeCount == 0 {
-                insertIncome(startDate: Date.distantPast, updatedDate: Date.now, business: "Walgreens", total: 500.00)
-                insertIncome(startDate: Date.distantPast, updatedDate: Date.now, business: "Walgreens", total: 500.00)
+                insertIncome(startDate: startDateA, business: "Walgreens", total: 500.00)
+                insertIncome(startDate: startDateA, business: "Walgreens", total: 500.00)
                 print(" Added testing data income.")
             }
             
             if balanceCount == 0 {
-                insertBalance(startDate: Date.distantPast, updatedDate: Date.distantPast, accountBalance: 10000)
+                insertBalance(startDate: Date.distantPast, accountBalance: 10000)
                 print(" Added testing data balance.")
             }
             
             if expensesCount == 0 {
-                insertExpense(startDate: Date.distantPast, updatedDate: Date.now, business: "att", category: "cable", total: 400.00)
+                insertExpense(startDate: startDateA, business: "att", category: "cable", total: 400.00)
                 print(" Added testing data monthlyExpences")
             }
             
@@ -119,7 +121,7 @@ class DBConnect {
     
     func printAllPurchases() {
         guard let db = db else { return }
-
+        
         do {
             let allRows = try db.prepare(purchases)
             for row in allRows {
@@ -129,7 +131,7 @@ class DBConnect {
             print("Failed to fetch purchases: \(error)")
         }
     }
-
+    
     func createExpensesTable() {
         guard let db = db else {return}
         do{
@@ -163,7 +165,7 @@ class DBConnect {
         }
         print("purchase table created")
     }
-
+    
     func createBalanceTable() {
         guard let db = db else {return}
         do{
@@ -213,11 +215,11 @@ class DBConnect {
     }
     
     
-    func insertIncome(startDate: Date, updatedDate: Date, business: String, total: Double) {
+    func insertIncome(startDate: Date, business: String, total: Double) {
         guard let db = db else {return}
         let insert = monthlyIncomeTable.insert(
             self.startDate <- startDate,
-            self.updatedDate <- updatedDate,
+            self.updatedDate <- startDate,
             self.business <- business,
             self.total <- total)
         do {
@@ -227,17 +229,17 @@ class DBConnect {
             print("Error inserting income: \(error)")
         }
     }
-
-    func insertBalance(startDate: Date, updatedDate: Date, accountBalance: Double){
+    
+    func insertBalance(startDate: Date, accountBalance: Double){
         guard let db = db else {return}
-
+        
         let newBalance = balanceTable.insert(
             self.id <- 1,
             self.startDate <- startDate,
-            self.updatedDate <- updatedDate,
+            self.updatedDate <- startDate,
             self.accountBalance <- accountBalance)
         do {
-           // let count = try db.scalar("SELECT COUNT(*) FROM balance") as! Int64
+            // let count = try db.scalar("SELECT COUNT(*) FROM balance") as! Int64
             let insertRow = try db.run(newBalance)
             print("Balance edited successfully to row \(insertRow).")
         } catch {
@@ -260,11 +262,11 @@ class DBConnect {
         }
     }
     
-    func insertExpense(startDate: Date, updatedDate: Date, business: String, category: String, total: Double) {
+    func insertExpense(startDate: Date, business: String, category: String, total: Double) {
         guard let db = db else {return}
         let insert = monthlyExpensesTable.insert(
             self.startDate <- startDate,
-            self.updatedDate <- updatedDate,
+            self.updatedDate <- startDate,
             self.business <- business,
             self.category <- category,
             self.total <- total)
@@ -302,9 +304,9 @@ class DBConnect {
                 let currentDate = balance[updatedDate]
                 let purchasesTotal = try db.scalar(purchases.filter(date >= balanceStartDate && date <= currentDate).select(total.sum)) ?? 0.0
                 let newBalance = currentAccountBalance - purchasesTotal
-
+                
                 try db.run(balanceTable.update(accountBalance <- newBalance, updatedDate <- currentDate))
-
+                
                 print("Balance updated successfully. New balance: \(newBalance)")
             } else {
                 print("No balance found. Initialize the balanceTable.")
@@ -323,7 +325,42 @@ class DBConnect {
     }
     
     func applymonthlySExpences() {
-        
+        guard let db = db else {return}
+        do {
+            
+            for monthlyExpense in try db.prepare(monthlyExpensesTable) {
+                let itemID = monthlyExpense[id]
+                let itemStartDate = monthlyExpense[startDate]
+                let itemUpdatedDate = monthlyExpense[updatedDate]
+                let itemBusiness = monthlyExpense[business]
+                let itemCategory = monthlyExpense[category]
+                let itemTotal = monthlyExpense[total]
+                var currentDate = itemStartDate
+                let calendar = Calendar.current
+                
+                while currentDate <= itemUpdatedDate {
+                    let purchaseDate = calendar.date(from: calendar.dateComponents([.year, .month], from: currentDate))!
+                    try db.run(purchases.insert(
+                        self.business <- itemBusiness,
+                        self.category <- itemCategory,
+                        self.total <- itemTotal,
+                        self.date <- purchaseDate
+                    ))
+                    currentDate = calendar.date(byAdding: .month, value: 1, to: currentDate)!
+                    dateFormatter.locale = Locale(identifier: "en_US")
+                    dateFormatter.dateFormat = "yyyy-MM-dd"
+                    let localizedDate = dateFormatter.string(from: currentDate)
+                    
+                    print("added expense for date: \(localizedDate)")
+                }
+                let expenseItem = monthlyExpensesTable.filter(id == itemID)
+                try db.run(expenseItem.update(updatedDate <- currentDate))
+                print("expense item updated for month")
+            }
+            print("Purchases added for all monthly expenses.")
+        } catch {
+            print("An error occurred: \(error)")
+        }
     }
     
     // Function to insert a purchase record
@@ -341,27 +378,27 @@ class DBConnect {
             print("Error inserting purchase: \(error)")
         }
     }
-
+    
     func getPurchase() -> [receipt] {
-    var recipts: [receipt] = []
+        var recipts: [receipt] = []
         purchases = purchases.order(id.desc)
         guard let db = db else { return [] }
         do {
             for row in try db.prepare(purchases){
                 
-                    // Process apurchase
-                    let purchase = receipt(
-                        id: try row.get(id),
-                        date: try row.get(date),
-                        business: try row.get(business),
-                        category: try row.get(category),
-                        total: try row.get(total)
-                        
-                    )
-                    recipts.append(purchase)
-                }
-                print(recipts)
-                return recipts
+                // Process apurchase
+                let purchase = receipt(
+                    id: try row.get(id),
+                    date: try row.get(date),
+                    business: try row.get(business),
+                    category: try row.get(category),
+                    total: try row.get(total)
+                    
+                )
+                recipts.append(purchase)
+            }
+            print(recipts)
+            return recipts
             
         } catch {
             print("Error fetching purchase: \(error)")
@@ -376,18 +413,18 @@ class DBConnect {
         do {
             for row in try db.prepare( monthlyExpensesTable){
                 
-                    let ExpenseItem = expense(
-                        id: try row.get(id),
-                        startDate: try row.get(startDate),
-                        updatedDate: try row.get(updatedDate),
-                        business: try row.get(business),
-                        category: try row.get(category),
-                        total: try row.get(total)
-                    )
-                    allExpenses.append(ExpenseItem)
-                }
-                print(allExpenses)
-                return allExpenses
+                let ExpenseItem = expense(
+                    id: try row.get(id),
+                    startDate: try row.get(startDate),
+                    updatedDate: try row.get(updatedDate),
+                    business: try row.get(business),
+                    category: try row.get(category),
+                    total: try row.get(total)
+                )
+                allExpenses.append(ExpenseItem)
+            }
+            print(allExpenses)
+            return allExpenses
             
         } catch {
             print("Error fetching all monthly expences: \(error)")
@@ -401,16 +438,16 @@ class DBConnect {
         guard let db = db else { return [] }
         do {
             for row in try db.prepare(depositsTable){
-                    let depositItem = deposit(
-                        id: try row.get(id),
-                        date: try row.get(date),
-                        business: try row.get(business),
-                        total: try row.get(total)
-                    )
-                    allDeposits.append(depositItem)
-                }
-                print(allDeposits)
-                return allDeposits
+                let depositItem = deposit(
+                    id: try row.get(id),
+                    date: try row.get(date),
+                    business: try row.get(business),
+                    total: try row.get(total)
+                )
+                allDeposits.append(depositItem)
+            }
+            print(allDeposits)
+            return allDeposits
         } catch {
             print("Error fetching all deposits: \(error)")
             return allDeposits
@@ -424,17 +461,17 @@ class DBConnect {
         do {
             for row in try db.prepare(monthlyIncomeTable){
                 
-                    let income = income(
-                        id: try row.get(id),
-                        startDate: try row.get(startDate),
-                        updatedDate: try row.get(updatedDate),
-                        business: try row.get(business),
-                        total: try row.get(total)
-                    )
-                    allIncome.append(income)
-                }
-                print(allIncome)
-                return allIncome
+                let income = income(
+                    id: try row.get(id),
+                    startDate: try row.get(startDate),
+                    updatedDate: try row.get(updatedDate),
+                    business: try row.get(business),
+                    total: try row.get(total)
+                )
+                allIncome.append(income)
+            }
+            print(allIncome)
+            return allIncome
             
         } catch {
             print("Error fetching all income: \(error)")

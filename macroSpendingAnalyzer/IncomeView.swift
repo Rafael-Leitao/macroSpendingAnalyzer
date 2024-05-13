@@ -55,7 +55,7 @@ struct AddIncomeView: View {
                 
                 Button("Save") {
                     if let total = Double(total) {
-                        DBConnect.sharedInstance.insertIncome(startDate: startDate, updatedDate: startDate, business: business, total: total)
+                        DBConnect.sharedInstance.insertIncome(startDate: startDate, business: business, total: total)
                     }
 
                 }
