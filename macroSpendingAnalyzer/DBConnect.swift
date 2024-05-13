@@ -53,12 +53,11 @@ class DBConnect {
         guard let db = db else { return }
         do{
             let tableCount = try db.scalar("SELECT count(*) FROM sqlite_master WHERE type = 'table'") as! Int64
-            print("The current number of tables should be 6, tables = \(tableCount)")
             if tableCount == numberOfTables {
-                print("tables have already been created.")
                 updateMonthlyExpenses()
                 updateMonthlyIncome()
                 updateBalance()
+        
             } else {
                 createPurchaseTable()
                 createIncomeTable()
@@ -411,6 +410,31 @@ class DBConnect {
         }
     }
     
+    func getPieChartData() -> [String: Double]{
+        var categoryTotals = [String: Double]()
+        guard let db = db else {return [:] }
+        let calendar = Calendar.current
+        let now = Date()
+        let year = calendar.component(.year, from: now)
+        let startDate = calendar.date(from: DateComponents(year: year, month: 1, day: 1))!
+        let filteredPurchases = purchases.filter(date >= startDate)
+
+        do{
+            for purchase in try db.prepare(filteredPurchases) {
+                let categoryName = purchase[category]
+                let purchaseTotal = purchase[total]
+                if categoryTotals[categoryName] != nil {
+                    categoryTotals[categoryName]! += purchaseTotal
+                } else {
+                    categoryTotals[categoryName] = purchaseTotal
+                }
+            }
+            return categoryTotals
+        }catch {
+                print("Error fetching purchases: \(error)")
+            return categoryTotals
+            }
+    }
     
     func getPurchase() -> [receipt] {
         var recipts: [receipt] = []
