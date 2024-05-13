@@ -56,6 +56,7 @@ class DBConnect {
             print("The current number of tables should be 6, tables = \(tableCount)")
             if tableCount == numberOfTables {
                 print("tables have already been created.")
+                updateBalance()
             } else {
                 createPurchaseTable()
                 createIncomeTable()
@@ -66,7 +67,9 @@ class DBConnect {
                 
                 insertTestingValues()
                 applymonthlyExpenses()
-                printAllPurchases()
+                applyMonthlyIncome()
+                
+                updateBalance()
             }
         } catch {
             print("Error: \(error)")
@@ -87,6 +90,7 @@ class DBConnect {
              
              // Define the date range
              let startDateA = dateFormatter.date(from: "2023-01-01")!
+            let startDateB  = dateFormatter.date(from: "2022-01-01")!
             
             if purchaseCount == 0 {
                 insertPurchase(business: "trader Joes", category: "food", total: 5.6, date: Date.now)
@@ -95,12 +99,12 @@ class DBConnect {
             
             if incomeCount == 0 {
                 insertIncome(startDate: startDateA, business: "Walgreens", total: 500.00)
-                insertIncome(startDate: startDateA, business: "Walgreens", total: 500.00)
+                insertIncome(startDate: startDateA, business: "Burgerking", total: 1000.00)
                 print(" Added testing data income.")
             }
             
             if balanceCount == 0 {
-                insertBalance(startDate: Date.distantPast, accountBalance: 10000)
+                insertBalance(startDate: startDateB, accountBalance: 10000)
                 print(" Added testing data balance.")
             }
             
@@ -300,15 +304,17 @@ class DBConnect {
     func updateBalance(){
         guard let db = db else {return}
         do {
+            let depositsCount = try db.scalar("SELECT COUNT(*) FROM deposits") as! Int64
             if let balance = try db.pluck(balanceTable) {
                 let currentAccountBalance = balance[accountBalance]
-                let balanceStartDate = balance[startDate]
-                let currentDate = balance[updatedDate]
+                print("starting account balance= \(currentAccountBalance)")
+                let balanceStartDate = balance[updatedDate]
+                let currentDate = Date.now
                 let purchasesTotal = try db.scalar(purchases.filter(date >= balanceStartDate && date <= currentDate).select(total.sum)) ?? 0.0
-                let newBalance = currentAccountBalance - purchasesTotal
+                let depositsTotal = try db.scalar(depositsTable.filter(date >= balanceStartDate && date <= currentDate).select(total.sum)) ?? 0.0
+                let newBalance = currentAccountBalance - purchasesTotal + depositsTotal
                 
-                try db.run(balanceTable.update(accountBalance <- newBalance, updatedDate <- currentDate))
-                
+                try db.run(balanceTable.update(self.accountBalance <- newBalance, self.updatedDate <- currentDate))
                 print("Balance updated successfully. New balance: \(newBalance)")
             } else {
                 print("No balance found. Initialize the balanceTable.")
@@ -319,7 +325,35 @@ class DBConnect {
     }
     
     func applyMonthlyIncome() {
-
+        guard let db = db else {return}
+        do {
+            
+            for monthlyIncome in try db.prepare(monthlyIncomeTable) {
+                let itemID = monthlyIncome[id]
+                let itemUpdatedDate = monthlyIncome[updatedDate]
+                let itemBusiness = monthlyIncome[business]
+                let itemTotal = monthlyIncome[total]
+                var currentDate = itemUpdatedDate
+                let calendar = Calendar.current
+                
+                while currentDate <= Date.now {
+                    let depositDate = calendar.date(from: calendar.dateComponents([.year, .month], from: currentDate))!
+                    try db.run(depositsTable.insert(
+                        self.date <- depositDate,
+                        self.business <- itemBusiness,
+                        self.total <- itemTotal))
+                    currentDate = calendar.date(byAdding: .month, value: 1, to: currentDate)!
+                    let localizedDate = dateFormatter.string(from: currentDate)
+                    print("added deposit \(itemBusiness) for date: \(localizedDate)")
+                }
+                let incomeItem = monthlyIncomeTable.filter(id == itemID)
+                try db.run(incomeItem.update(updatedDate <- currentDate))
+                print("income item updated for month")
+            }
+            print("deposits added for all monthly incomes.")
+        } catch {
+            print("An error occurred: \(error)")
+        }
     }
     
     func applyPurchases() {
