@@ -14,6 +14,7 @@ struct ContentView: View {
     @State private var showOCRView = false
     @State private var showHistoryView = false
     @State private var showIncomeView = false
+    @State private var showStatisticsView = false
     private var db = DBConnect()
     
 
@@ -38,6 +39,22 @@ struct ContentView: View {
             .sheet(isPresented: $showOCRView) {
                 OCRView()
             }
+            
+            Button(action: {
+                showStatisticsView  = true
+            }) {
+                Text("Your Stats")
+                    .padding()
+                    .background(Color.blue)
+                    .foregroundColor(.white)
+                    .cornerRadius(10)
+            }
+            .opacity(buttonsOpacity)
+            .sheet(isPresented: $showStatisticsView) {
+                StatisticsView()
+            }
+            
+            
             
             Button(action: {
                 showIncomeView = true
@@ -75,8 +92,6 @@ struct ContentView: View {
                 buttonsOpacity = 1.0
             }
         }
-        .background(Color.green) // Set the background color to dark green
-        .edgesIgnoringSafeArea(.all) // Extend the background to fill the entire screen
     }
 }
 
