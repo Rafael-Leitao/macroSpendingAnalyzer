@@ -61,7 +61,7 @@ struct StatisticsView: View {
                                 )
                                 .foregroundStyle(by: .value("Category", data.category))
                                 .annotation(position: .top) {
-                                    Text("\(data.total, specifier: "%.2f")")
+                                    Text("$\(data.total, specifier: "%.2f")")
                                         .font(.caption)
                                         .foregroundColor(.white)
                                 }
