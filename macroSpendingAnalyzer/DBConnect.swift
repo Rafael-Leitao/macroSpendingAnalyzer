@@ -53,9 +53,11 @@ class DBConnect {
         guard let db = db else { return }
         do{
             let tableCount = try db.scalar("SELECT count(*) FROM sqlite_master WHERE type = 'table'") as! Int64
-            print("The current number of tables should be 6, tables = \(tableCount)")
             if tableCount == numberOfTables {
-                print("tables have already been created.")
+                updateMonthlyExpenses()
+                updateMonthlyIncome()
+                updateBalance()
+        
             } else {
                 createPurchaseTable()
                 createIncomeTable()
@@ -65,7 +67,9 @@ class DBConnect {
                 
                 
                 insertTestingValues()
-     //           applymonthlySExpences()
+                updateMonthlyExpenses()
+                updateMonthlyIncome()
+                updateBalance()
             }
         } catch {
             print("Error: \(error)")
@@ -86,6 +90,7 @@ class DBConnect {
              
              // Define the date range
              let startDateA = dateFormatter.date(from: "2023-01-01")!
+            let startDateB  = dateFormatter.date(from: "2022-01-01")!
             
             if purchaseCount == 0 {
                 insertPurchase(business: "trader Joes", category: "food", total: 5.6, date: Date.now)
@@ -94,12 +99,12 @@ class DBConnect {
             
             if incomeCount == 0 {
                 insertIncome(startDate: startDateA, business: "Walgreens", total: 500.00)
-                insertIncome(startDate: startDateA, business: "Walgreens", total: 500.00)
+                insertIncome(startDate: startDateA, business: "Burgerking", total: 1000.00)
                 print(" Added testing data income.")
             }
             
             if balanceCount == 0 {
-                insertBalance(startDate: Date.distantPast, accountBalance: 10000)
+                insertBalance(startDate: startDateB, accountBalance: 10000)
                 print(" Added testing data balance.")
             }
             
@@ -112,6 +117,7 @@ class DBConnect {
                 insertDeposit(depositDate: Date.distantPast, business: "google", total: 4000.00)
                 print(" Added testing data monthlyExpences")
             }
+
             
         } catch {
             print("Error: \(error)")
@@ -300,13 +306,14 @@ class DBConnect {
         do {
             if let balance = try db.pluck(balanceTable) {
                 let currentAccountBalance = balance[accountBalance]
-                let balanceStartDate = balance[startDate]
-                let currentDate = balance[updatedDate]
+                print("starting account balance= \(currentAccountBalance)")
+                let balanceStartDate = balance[updatedDate]
+                let currentDate = Date.now
                 let purchasesTotal = try db.scalar(purchases.filter(date >= balanceStartDate && date <= currentDate).select(total.sum)) ?? 0.0
-                let newBalance = currentAccountBalance - purchasesTotal
+                let depositsTotal = try db.scalar(depositsTable.filter(date >= balanceStartDate && date <= currentDate).select(total.sum)) ?? 0.0
+                let newBalance = currentAccountBalance - purchasesTotal + depositsTotal
                 
-                try db.run(balanceTable.update(accountBalance <- newBalance, updatedDate <- currentDate))
-                
+                try db.run(balanceTable.update(self.accountBalance <- newBalance, self.updatedDate <- currentDate))
                 print("Balance updated successfully. New balance: \(newBalance)")
             } else {
                 print("No balance found. Initialize the balanceTable.")
@@ -316,29 +323,56 @@ class DBConnect {
         }
     }
     
-    func applyMonthlyIncome() {
-        
+    func updateMonthlyIncome() {
+        guard let db = db else {return}
+        do {
+            
+            for monthlyIncome in try db.prepare(monthlyIncomeTable) {
+                let itemID = monthlyIncome[id]
+                let itemUpdatedDate = monthlyIncome[updatedDate]
+                let itemBusiness = monthlyIncome[business]
+                let itemTotal = monthlyIncome[total]
+                var currentDate = itemUpdatedDate
+                let calendar = Calendar.current
+                
+                while currentDate <= Date.now {
+                    let depositDate = calendar.date(from: calendar.dateComponents([.year, .month], from: currentDate))!
+                    try db.run(depositsTable.insert(
+                        self.date <- depositDate,
+                        self.business <- itemBusiness,
+                        self.total <- itemTotal))
+                    currentDate = calendar.date(byAdding: .month, value: 1, to: currentDate)!
+                    let localizedDate = dateFormatter.string(from: currentDate)
+                    print("added deposit \(itemBusiness) for date: \(localizedDate)")
+                }
+                let incomeItem = monthlyIncomeTable.filter(id == itemID)
+                try db.run(incomeItem.update(updatedDate <- currentDate))
+                print("income item updated for month")
+            }
+            print("deposits added for all monthly incomes.")
+        } catch {
+            print("An error occurred: \(error)")
+        }
     }
     
     func applyPurchases() {
         
     }
     
-    func applymonthlySExpences() {
+    func updateMonthlyExpenses() {
         guard let db = db else {return}
         do {
             
             for monthlyExpense in try db.prepare(monthlyExpensesTable) {
                 let itemID = monthlyExpense[id]
-                let itemStartDate = monthlyExpense[startDate]
                 let itemUpdatedDate = monthlyExpense[updatedDate]
                 let itemBusiness = monthlyExpense[business]
                 let itemCategory = monthlyExpense[category]
                 let itemTotal = monthlyExpense[total]
-                var currentDate = itemStartDate
+                var currentDate = itemUpdatedDate
                 let calendar = Calendar.current
                 
-                while currentDate <= itemUpdatedDate {
+                while currentDate <= Date.now {
                     let purchaseDate = calendar.date(from: calendar.dateComponents([.year, .month], from: currentDate))!
                     try db.run(purchases.insert(
                         self.business <- itemBusiness,
@@ -347,11 +381,8 @@ class DBConnect {
                         self.date <- purchaseDate
                     ))
                     currentDate = calendar.date(byAdding: .month, value: 1, to: currentDate)!
-                    dateFormatter.locale = Locale(identifier: "en_US")
-                    dateFormatter.dateFormat = "yyyy-MM-dd"
                     let localizedDate = dateFormatter.string(from: currentDate)
-                    
-                    print("added expense for date: \(localizedDate)")
+                    print("added expense \(itemBusiness) for date: \(localizedDate)")
                 }
                 let expenseItem = monthlyExpensesTable.filter(id == itemID)
                 try db.run(expenseItem.update(updatedDate <- currentDate))
@@ -377,6 +408,32 @@ class DBConnect {
         } catch {
             print("Error inserting purchase: \(error)")
         }
+    }
+    
+    func getPieChartData() -> [String: Double]{
+        var categoryTotals = [String: Double]()
+        guard let db = db else {return [:] }
+        let calendar = Calendar.current
+        let now = Date()
+        let year = calendar.component(.year, from: now)
+        let startDate = calendar.date(from: DateComponents(year: year, month: 1, day: 1))!
+        let filteredPurchases = purchases.filter(date >= startDate)
+
+        do{
+            for purchase in try db.prepare(filteredPurchases) {
+                let categoryName = purchase[category]
+                let purchaseTotal = purchase[total]
+                if categoryTotals[categoryName] != nil {
+                    categoryTotals[categoryName]! += purchaseTotal
+                } else {
+                    categoryTotals[categoryName] = purchaseTotal
+                }
+            }
+            return categoryTotals
+        }catch {
+                print("Error fetching purchases: \(error)")
+            return categoryTotals
+            }
     }
     
     func getPurchase() -> [receipt] {
