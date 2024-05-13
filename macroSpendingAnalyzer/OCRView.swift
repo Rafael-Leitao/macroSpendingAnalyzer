@@ -1,3 +1,10 @@
+//
+//  ContentView.swift
+//  macroSpendingAnalyzer
+//
+//  Created by Anthony Silva & Rafael Leitao on 3/26/24.
+//
+
 import SwiftUI
 import Vision
 import VisionKit

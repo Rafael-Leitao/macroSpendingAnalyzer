@@ -2,7 +2,7 @@
 //  ContentView.swift
 //  macroSpendingAnalyzer
 //
-//  Created by Rafael Leitao on 3/26/24.
+//  Created by Anthony Silva & Rafael Leitao on 3/26/24.
 //
 
 import SwiftUI
@@ -29,7 +29,7 @@ struct ContentView: View {
             Button(action: {
                 showOCRView = true
             }) {
-                Text("Add a new receipt")
+                Text("New Receipt")
                     .padding()
                     .background(Color.blue)
                     .foregroundColor(.white)
@@ -43,7 +43,7 @@ struct ContentView: View {
             Button(action: {
                 showStatisticsView  = true
             }) {
-                Text("Your Stats")
+                Text("Your Stats    ")
                     .padding()
                     .background(Color.blue)
                     .foregroundColor(.white)
@@ -59,7 +59,7 @@ struct ContentView: View {
             Button(action: {
                 showIncomeView = true
             }) {
-                Text("edit income")
+                Text(" Edit Income ")
                     .padding()
                     .background(Color.blue)
                     .foregroundColor(.white)
@@ -73,7 +73,7 @@ struct ContentView: View {
             Button(action: {
                 showHistoryView = true
             }) {
-                Text("Your History")
+                Text(" Your History ")
                     .multilineTextAlignment(.center)
                     .padding()
                     .background(Color.green)

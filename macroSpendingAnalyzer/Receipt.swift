@@ -2,7 +2,7 @@
 //  receipt.swift
 //  macroSpendingAnalyzer
 //
-//  Created by Anthony Silva on 4/9/24.
+//  Created by Anthony Silva & Rafael Leitao on 4/9/24.
 //
 
 import Foundation

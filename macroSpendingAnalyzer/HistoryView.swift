@@ -2,7 +2,7 @@
 //  HistoryView.swift
 //  macroSpendingAnalyzer
 //
-//  Created by Rafael Leitao on 3/26/24.
+//  Created by Anthony Silva & Rafael Leitao on 3/26/24.
 //
 
 import SwiftUI
@@ -27,25 +27,22 @@ struct HistoryView: View {
                        
                         Text("\(receipt.date, formatter: dateFormatter)")
                     }
+                    
                     Spacer()
                     Text(receipt.total,format: .currency(code: Locale.current.currency?.identifier ?? "USD"))
-//                    Spacer()
-//                    Button(action: {
-//                        self.receiptId = Receipt.id
-//                        self.reciptSelected = true
-//                    }, label: {
-//                        Text("Edit")
-//                            .foregroundColor(Color.blue)
-//                        })
-//                        .buttonStyle(PlainButtonStyle())
                 }
             }
+        
             .navigationTitle("Purchases")
+            .navigationBarItems(leading: Button("Back") {
+                            self.modepresentationMode.wrappedValue.dismiss()
+                        })
             .onAppear(perform: {
                 self.transactions = DBConnect.sharedInstance.getPurchase()
             })
         
     }
+    
     private let dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.dateStyle = .short

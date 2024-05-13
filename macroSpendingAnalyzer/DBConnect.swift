@@ -2,7 +2,7 @@
 //  DBConnect.swift
 //  macroSpendingAnalyzer
 //
-//  Created by Anthony Silva on 3/31/24.
+//  Created by Anthony Silva & Rafael Leitao on 3/31/24.
 //
 
 import Foundation
@@ -614,25 +614,7 @@ class DBConnect {
             print("Error removing deposit: \(error)")
         }
     }
-    
-    
-    
-    func getSpendingByCategory() -> [(category: String, total: Double)] {
-        guard let db = db else { return [] }
 
-        do {
-            let query = purchases.select(category, total.sum).group(category)
-            return try db.prepare(query).map { (category: $0[category], total: $0[total.sum] ?? 0) }
-        } catch {
-            print("Failed to fetch spending by category: \(error)")
-            return []
-        }
-    }
-    
-
-    
-    
-    
     
 }
 

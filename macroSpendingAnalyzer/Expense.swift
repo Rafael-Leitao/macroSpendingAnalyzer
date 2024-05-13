@@ -2,7 +2,7 @@
 //  Expense.swift
 //  macroSpendingAnalyzer
 //
-//  Created by Anthony Silva on 5/12/24.
+//  Created by Anthony Silva & Rafael Leitao on 5/12/24.
 //
 
 import Foundation

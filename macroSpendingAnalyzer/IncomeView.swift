@@ -7,6 +7,7 @@
 import SwiftUI
 
 struct IncomeView: View {
+    @Environment(\.presentationMode) var presentationMode
     @State private var incomes = [income]()
     @State private var showingAddIncome = false
     
@@ -21,7 +22,9 @@ struct IncomeView: View {
                 }
             }
             .navigationTitle("Monthly Incomes")
-            .navigationBarItems(trailing: Button(action: {
+            .navigationBarItems(leading: Button("Back") {
+                presentationMode.wrappedValue.dismiss()},
+                                trailing: Button(action: {
                 self.showingAddIncome.toggle()
             }) {
                 Image(systemName: "plus")
