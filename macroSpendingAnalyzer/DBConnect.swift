@@ -65,7 +65,8 @@ class DBConnect {
                 
                 
                 insertTestingValues()
-     //           applymonthlySExpences()
+                applymonthlyExpenses()
+                printAllPurchases()
             }
         } catch {
             print("Error: \(error)")
@@ -112,6 +113,7 @@ class DBConnect {
                 insertDeposit(depositDate: Date.distantPast, business: "google", total: 4000.00)
                 print(" Added testing data monthlyExpences")
             }
+
             
         } catch {
             print("Error: \(error)")
@@ -317,28 +319,27 @@ class DBConnect {
     }
     
     func applyMonthlyIncome() {
-        
+
     }
     
     func applyPurchases() {
         
     }
     
-    func applymonthlySExpences() {
+    func applymonthlyExpenses() {
         guard let db = db else {return}
         do {
             
             for monthlyExpense in try db.prepare(monthlyExpensesTable) {
                 let itemID = monthlyExpense[id]
-                let itemStartDate = monthlyExpense[startDate]
                 let itemUpdatedDate = monthlyExpense[updatedDate]
                 let itemBusiness = monthlyExpense[business]
                 let itemCategory = monthlyExpense[category]
                 let itemTotal = monthlyExpense[total]
-                var currentDate = itemStartDate
+                var currentDate = itemUpdatedDate
                 let calendar = Calendar.current
                 
-                while currentDate <= itemUpdatedDate {
+                while currentDate <= Date.now {
                     let purchaseDate = calendar.date(from: calendar.dateComponents([.year, .month], from: currentDate))!
                     try db.run(purchases.insert(
                         self.business <- itemBusiness,
@@ -347,11 +348,8 @@ class DBConnect {
                         self.date <- purchaseDate
                     ))
                     currentDate = calendar.date(byAdding: .month, value: 1, to: currentDate)!
-                    dateFormatter.locale = Locale(identifier: "en_US")
-                    dateFormatter.dateFormat = "yyyy-MM-dd"
                     let localizedDate = dateFormatter.string(from: currentDate)
-                    
-                    print("added expense for date: \(localizedDate)")
+                    print("added expense \(itemBusiness) for date: \(localizedDate)")
                 }
                 let expenseItem = monthlyExpensesTable.filter(id == itemID)
                 try db.run(expenseItem.update(updatedDate <- currentDate))
