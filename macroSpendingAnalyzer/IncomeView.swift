@@ -31,7 +31,7 @@ struct IncomeView: View {
             AddIncomeView(incomes: self.$incomes)
         }
         .onAppear {
-            self.incomes = DBConnect.sharedInstance.getIncome()
+            self.incomes = DBConnect().getIncome()
         }
     }
 

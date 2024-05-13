@@ -56,6 +56,8 @@ class DBConnect {
             print("The current number of tables should be 6, tables = \(tableCount)")
             if tableCount == numberOfTables {
                 print("tables have already been created.")
+                updateMonthlyExpenses()
+                updateMonthlyIncome()
                 updateBalance()
             } else {
                 createPurchaseTable()
@@ -66,9 +68,8 @@ class DBConnect {
                 
                 
                 insertTestingValues()
-                applymonthlyExpenses()
-                applyMonthlyIncome()
-                
+                updateMonthlyExpenses()
+                updateMonthlyIncome()
                 updateBalance()
             }
         } catch {
@@ -304,7 +305,6 @@ class DBConnect {
     func updateBalance(){
         guard let db = db else {return}
         do {
-            let depositsCount = try db.scalar("SELECT COUNT(*) FROM deposits") as! Int64
             if let balance = try db.pluck(balanceTable) {
                 let currentAccountBalance = balance[accountBalance]
                 print("starting account balance= \(currentAccountBalance)")
@@ -324,7 +324,7 @@ class DBConnect {
         }
     }
     
-    func applyMonthlyIncome() {
+    func updateMonthlyIncome() {
         guard let db = db else {return}
         do {
             
@@ -360,7 +360,7 @@ class DBConnect {
         
     }
     
-    func applymonthlyExpenses() {
+    func updateMonthlyExpenses() {
         guard let db = db else {return}
         do {
             
@@ -410,6 +410,7 @@ class DBConnect {
             print("Error inserting purchase: \(error)")
         }
     }
+    
     
     func getPurchase() -> [receipt] {
         var recipts: [receipt] = []
