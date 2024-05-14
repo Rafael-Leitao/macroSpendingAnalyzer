@@ -24,7 +24,6 @@
 		FF19187E2BB37EC800BEFEC2 /* OCRView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF19187D2BB37EC800BEFEC2 /* OCRView.swift */; };
 		FF1918802BB3865D00BEFEC2 /* HistoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF19187F2BB3865D00BEFEC2 /* HistoryView.swift */; };
 		FF2073282BF1B1FB00375609 /* StatisticsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF2073272BF1B1FB00375609 /* StatisticsView.swift */; };
-		FF20732B2BF1BA2D00375609 /* SwiftUICharts in Frameworks */ = {isa = PBXBuildFile; productRef = FF20732A2BF1BA2D00375609 /* SwiftUICharts */; };
 		FF75F8242BE6E3B900638776 /* SQLite in Frameworks */ = {isa = PBXBuildFile; productRef = FF75F8232BE6E3B900638776 /* SQLite */; };
 		FF75F8262BE6E44500638776 /* SQLite in Frameworks */ = {isa = PBXBuildFile; productRef = FF75F8252BE6E44500638776 /* SQLite */; };
 /* End PBXBuildFile section */
@@ -75,7 +74,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				FF75F8242BE6E3B900638776 /* SQLite in Frameworks */,
-				FF20732B2BF1BA2D00375609 /* SwiftUICharts in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -182,7 +180,6 @@
 			name = macroSpendingAnalyzer;
 			packageProductDependencies = (
 				FF75F8232BE6E3B900638776 /* SQLite */,
-				FF20732A2BF1BA2D00375609 /* SwiftUICharts */,
 			);
 			productName = macroSpendingAnalyzer;
 			productReference = FF1918502BB354C500BEFEC2 /* macroSpendingAnalyzer.app */;
@@ -485,7 +482,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"macroSpendingAnalyzer/Preview Content\"";
-				DEVELOPMENT_TEAM = 4PDZM4G7G4;
+				DEVELOPMENT_TEAM = 2HJJB9WW8S;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSCameraUsageDescription = "\"This app uses the camera to capture photos\"";
@@ -500,7 +497,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = macroSpendingAnalyzer2024;
+				PRODUCT_BUNDLE_IDENTIFIER = macroSpendingAnalyzer2024A;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -517,7 +514,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"macroSpendingAnalyzer/Preview Content\"";
-				DEVELOPMENT_TEAM = 4PDZM4G7G4;
+				DEVELOPMENT_TEAM = 2HJJB9WW8S;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSCameraUsageDescription = "\"This app uses the camera to capture photos\"";
@@ -532,7 +529,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = macroSpendingAnalyzer2024;
+				PRODUCT_BUNDLE_IDENTIFIER = macroSpendingAnalyzer2024A;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -689,11 +686,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = B6BDAA082BB619FF00F6C835 /* XCRemoteSwiftPackageReference "SQLite" */;
 			productName = SQLite;
-		};
-		FF20732A2BF1BA2D00375609 /* SwiftUICharts */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = FF2073292BF1BA2D00375609 /* XCRemoteSwiftPackageReference "ChartView" */;
-			productName = SwiftUICharts;
 		};
 		FF75F8232BE6E3B900638776 /* SQLite */ = {
 			isa = XCSwiftPackageProductDependency;

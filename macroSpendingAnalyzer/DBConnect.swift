@@ -355,10 +355,6 @@ class DBConnect {
         }
     }
     
-    func applyPurchases() {
-        
-    }
-    
     func updateMonthlyExpenses() {
         guard let db = db else {return}
         do {
@@ -508,6 +504,28 @@ class DBConnect {
         } catch {
             print("Error fetching all deposits: \(error)")
             return allDeposits
+        }
+    }
+    
+    func etTotalIncome() -> Double {
+        guard let db = db else { return 0.0 }
+        do {
+            guard let sum = try db.scalar(monthlyIncomeTable.select(total.sum)) else { return 0.0 }
+            return sum
+        } catch {
+            print("Error: \(error)")
+            return 0.0
+        }
+    }
+    
+    func getTotalExpense() -> Double {
+        guard let db = db else { return 0.0 }
+        do {
+            guard let sum = try db.scalar(monthlyExpensesTable.select(total.sum)) else { return 0.0 }
+            return sum
+        } catch {
+            print("An error occurred: \(error)")
+            return 0.0
         }
     }
     
