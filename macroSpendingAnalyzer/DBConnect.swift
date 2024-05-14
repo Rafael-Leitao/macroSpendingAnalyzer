@@ -507,7 +507,7 @@ class DBConnect {
         }
     }
     
-    func etTotalIncome() -> Double {
+    func getTotalIncome() -> Double {
         guard let db = db else { return 0.0 }
         do {
             guard let sum = try db.scalar(monthlyIncomeTable.select(total.sum)) else { return 0.0 }
