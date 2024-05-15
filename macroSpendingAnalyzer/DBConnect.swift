@@ -229,6 +229,7 @@ class DBConnect {
             self.total <- total)
         do {
             let insertRow = try db.run(insert)
+            updateMonthlyIncome()
             print("income inserted successfully to row \(insertRow).")
         } catch {
             print("Error inserting income: \(error)")
@@ -277,6 +278,7 @@ class DBConnect {
             self.total <- total)
         do {
             let insertRow = try db.run(insert)
+            updateMonthlyExpenses()
             print("Expense inserted successfully to row \(insertRow).")
         } catch {
             print("Error inserting expense: \(error)")
@@ -433,7 +435,7 @@ class DBConnect {
     
     func getPurchase() -> [receipt] {
         var recipts: [receipt] = []
-        purchases = purchases.order(id.desc)
+        purchases = purchases.order(date.desc)
         guard let db = db else { return [] }
         do {
             for row in try db.prepare(purchases){
@@ -450,7 +452,7 @@ class DBConnect {
                 recipts.append(purchase)
             }
             print(recipts)
-            return Array(recipts.prefix(5))
+            return Array(recipts.prefix(50))
             
         } catch {
             print("Error fetching purchase: \(error)")
