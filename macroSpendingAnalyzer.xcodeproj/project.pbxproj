@@ -13,6 +13,7 @@
 		B6A7E3CA2BF17C47001ADC29 /* Balance.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6A7E3C92BF17C47001ADC29 /* Balance.swift */; };
 		B6A7E3CC2BF17DDA001ADC29 /* Expense.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6A7E3CB2BF17DDA001ADC29 /* Expense.swift */; };
 		B6A7E3CE2BF17E3A001ADC29 /* Deposit.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6A7E3CD2BF17E3A001ADC29 /* Deposit.swift */; };
+		B6ADC8C62BF438F100F6A7B6 /* ExpenseView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6ADC8C52BF438F100F6A7B6 /* ExpenseView.swift */; };
 		B6C858482BEE8E54007DF802 /* Income.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6C858472BEE8E54007DF802 /* Income.swift */; };
 		FF1918542BB354C500BEFEC2 /* macroSpendingAnalyzerApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF1918532BB354C500BEFEC2 /* macroSpendingAnalyzerApp.swift */; };
 		FF1918562BB354C500BEFEC2 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF1918552BB354C500BEFEC2 /* ContentView.swift */; };
@@ -52,6 +53,7 @@
 		B6A7E3C92BF17C47001ADC29 /* Balance.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Balance.swift; sourceTree = "<group>"; };
 		B6A7E3CB2BF17DDA001ADC29 /* Expense.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Expense.swift; sourceTree = "<group>"; };
 		B6A7E3CD2BF17E3A001ADC29 /* Deposit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Deposit.swift; sourceTree = "<group>"; };
+		B6ADC8C52BF438F100F6A7B6 /* ExpenseView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpenseView.swift; sourceTree = "<group>"; };
 		B6C858472BEE8E54007DF802 /* Income.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Income.swift; sourceTree = "<group>"; };
 		FF1918502BB354C500BEFEC2 /* macroSpendingAnalyzer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = macroSpendingAnalyzer.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		FF1918532BB354C500BEFEC2 /* macroSpendingAnalyzerApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = macroSpendingAnalyzerApp.swift; sourceTree = "<group>"; };
@@ -122,6 +124,7 @@
 				FF1918552BB354C500BEFEC2 /* ContentView.swift */,
 				FF19187D2BB37EC800BEFEC2 /* OCRView.swift */,
 				FF19187F2BB3865D00BEFEC2 /* HistoryView.swift */,
+				B6ADC8C52BF438F100F6A7B6 /* ExpenseView.swift */,
 				B60AFDAA2BEED89B00449470 /* IncomeView.swift */,
 				FF2073272BF1B1FB00375609 /* StatisticsView.swift */,
 				FF1918572BB354C600BEFEC2 /* Assets.xcassets */,
@@ -307,6 +310,7 @@
 				B60AFDAB2BEED89B00449470 /* IncomeView.swift in Sources */,
 				FF1918562BB354C500BEFEC2 /* ContentView.swift in Sources */,
 				FF1918802BB3865D00BEFEC2 /* HistoryView.swift in Sources */,
+				B6ADC8C62BF438F100F6A7B6 /* ExpenseView.swift in Sources */,
 				B6A7E3CC2BF17DDA001ADC29 /* Expense.swift in Sources */,
 				B64D44D72BB9D0D80075F1E4 /* DBConnect.swift in Sources */,
 				FF1918542BB354C500BEFEC2 /* macroSpendingAnalyzerApp.swift in Sources */,

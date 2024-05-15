@@ -15,6 +15,8 @@ struct ContentView: View {
     @State private var showHistoryView = false
     @State private var showIncomeView = false
     @State private var showStatisticsView = false
+    @State private var showExpenseView = false
+
     private var db = DBConnect()
     
 
@@ -52,6 +54,20 @@ struct ContentView: View {
             .opacity(buttonsOpacity)
             .sheet(isPresented: $showStatisticsView) {
                 StatisticsView()
+            }
+            
+            Button(action: {
+                showExpenseView  = true
+            }) {
+                Text("Your Expenses    ")
+                    .padding()
+                    .background(Color.blue)
+                    .foregroundColor(.white)
+                    .cornerRadius(10)
+            }
+            .opacity(buttonsOpacity)
+            .sheet(isPresented: $showExpenseView) {
+                ExpenseView()
             }
             
             
