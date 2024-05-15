@@ -18,29 +18,28 @@ struct HistoryView: View {
 
     
     var body: some View {
-
-            List(self.transactions) { (receipt) in
-                HStack {
-                    VStack{
-                        
-                        Text(receipt.business)
-                       
-                        Text("\(receipt.date, formatter: dateFormatter)")
+        NavigationView {
+            List {
+                ForEach(transactions) { (receipt) in
+                    HStack {
+                        VStack{
+                            
+                            Text(receipt.business)
+                            Text("\(receipt.date, formatter: dateFormatter)")
+                        }
+                        Spacer()
+                        Text(receipt.total,format: .currency(code: Locale.current.currency?.identifier ?? "USD"))
                     }
-                    
-                    Spacer()
-                    Text(receipt.total,format: .currency(code: Locale.current.currency?.identifier ?? "USD"))
                 }
             }
-        
             .navigationTitle("Purchases")
             .navigationBarItems(leading: Button("Back") {
-                            self.modepresentationMode.wrappedValue.dismiss()
-                        })
+                self.modepresentationMode.wrappedValue.dismiss()
+            })
             .onAppear(perform: {
                 self.transactions = DBConnect.sharedInstance.getPurchase()
             })
-        
+        }
     }
     
     private let dateFormatter: DateFormatter = {

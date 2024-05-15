@@ -1,7 +1,6 @@
 //
 //  DBConnect.swift
 //  macroSpendingAnalyzer
-//
 //  Created by Anthony Silva & Rafael Leitao on 3/31/24.
 //
 
@@ -451,7 +450,7 @@ class DBConnect {
                 recipts.append(purchase)
             }
             print(recipts)
-            return recipts
+            return Array(recipts.prefix(5))
             
         } catch {
             print("Error fetching purchase: \(error)")
